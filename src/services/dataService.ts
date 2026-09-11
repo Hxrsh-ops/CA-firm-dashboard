@@ -12,6 +12,8 @@ import type {
   DashboardAttentionMetrics,
   SecondaryMetrics,
   ValidationStatus,
+  IntakeItem,
+  IntakeTabFilter,
 } from '../types';
 import {
   mockFirm,
@@ -90,6 +92,170 @@ class DataService {
     return this.settings;
   }
 
+  // ========================================================
+  // AI INTAKE INBOX DERIVED SERVICES
+  // ========================================================
+
+  getIntakeItems(filter?: {
+    tab?: IntakeTabFilter;
+    search?: string;
+    clientId?: string;
+    documentType?: string;
+    period?: string;
+    validationStatus?: string;
+    sortBy?: 'newest' | 'oldest' | 'lowest_confidence' | 'highest_confidence' | 'needs_attention';
+  }): IntakeItem[] {
+    let items: IntakeItem[] = this.documents.map((doc) => {
+      const client = this.getClientById(doc.client_id);
+      const alert = this.alerts.find(
+        (a) => a.client_id === doc.client_id && a.document_type === doc.document_type && a.status === 'Open'
+      );
+
+      const isDuplicate = doc.document_id === 'doc_aa_612' || alert?.alert_type === 'Duplicate';
+      const isReviewReq = doc.validation_status === 'Review Required' || alert?.alert_type === 'Review Required';
+
+      // Multi-attachment simulation
+      const emailAttachments = [
+        {
+          filename: doc.filename,
+          document_type: doc.document_type,
+          status: doc.validation_status,
+          confidence: doc.ai_confidence,
+          is_current: true,
+        },
+      ];
+
+      if (doc.document_id === 'doc_me_441') {
+        emailAttachments.push({
+          filename: 'Precision_Dies_Invoices_Annexure.pdf',
+          document_type: 'Expense Bills',
+          status: 'Valid',
+          confidence: 0.98,
+          is_current: false,
+        });
+      } else if (doc.document_id === 'doc_qb_882') {
+        emailAttachments.push({
+          filename: 'HDFC_Debit_Advice_Aug2026.pdf',
+          document_type: 'Bank Statement',
+          status: 'Valid',
+          confidence: 0.99,
+          is_current: false,
+        });
+      }
+
+      // Format received date nicely
+      const recDate = new Date(doc.received_at);
+      const timeStr = recDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+      const dayStr = `${recDate.getDate()} Sep`;
+      const receivedFormatted = `${dayStr} · ${timeStr}`;
+
+      return {
+        document_id: doc.document_id,
+        filename: doc.filename,
+        file_size: doc.file_size || '2.1 MB',
+        client_id: doc.client_id,
+        client_name: client?.legal_name || 'Unidentified Client',
+        client_initials: client?.display_name ? client.display_name.slice(0, 2) : 'CL',
+        entity_type: client?.entity_type || 'Private Limited',
+        assigned_ca: client?.assigned_ca || 'CA Arun',
+        document_type: doc.document_type,
+        period: doc.period,
+        ai_confidence: doc.ai_confidence,
+        validation_status: doc.validation_status,
+        processing_status: doc.processing_status,
+        received_at: doc.received_at,
+        received_formatted: receivedFormatted,
+        sender_email: doc.sender_email,
+        email_subject: doc.email_subject || `${doc.period} Statutory Documents Submission`,
+        total_attachments: emailAttachments.length,
+        attachment_index: 1,
+        is_exception: isDuplicate || alert?.alert_type === 'Unknown Client' || alert?.alert_type === 'Wrong Period',
+        exception_type: isDuplicate ? 'Duplicate' : alert?.alert_type,
+        exception_message: alert?.message || (isDuplicate ? 'Duplicate submission detected via SHA256 checksum.' : undefined),
+        review_reason: doc.notes || (isReviewReq ? 'AI confidence is below 95% threshold or deterministic rule mismatch detected.' : undefined),
+        notes: doc.notes,
+        rule_checks: {
+          client_exists: true,
+          doc_type_recognized: true,
+          period_identified: true,
+          requirement_exists: true,
+          auto_process_eligible: doc.ai_confidence >= 0.95 && !isDuplicate && !isReviewReq,
+          review_required_reason: isReviewReq ? (doc.notes || 'Vendor GSTIN verification check') : undefined,
+        },
+        email_attachments: emailAttachments,
+      };
+    });
+
+    // Apply Tab Filters
+    if (filter?.tab) {
+      if (filter.tab === 'needs_review') {
+        items = items.filter((item) => item.validation_status === 'Review Required' && !item.is_exception);
+      } else if (filter.tab === 'exceptions') {
+        items = items.filter((item) => item.is_exception);
+      } else if (filter.tab === 'processed') {
+        items = items.filter((item) => item.validation_status === 'Valid' && item.processing_status === 'Processed');
+      }
+    }
+
+    // Apply Search
+    if (filter?.search) {
+      const q = filter.search.toLowerCase().trim();
+      items = items.filter(
+        (item) =>
+          item.filename.toLowerCase().includes(q) ||
+          item.client_name.toLowerCase().includes(q) ||
+          item.sender_email.toLowerCase().includes(q) ||
+          item.document_type.toLowerCase().includes(q) ||
+          item.period.toLowerCase().includes(q)
+      );
+    }
+
+    // Apply specific filters
+    if (filter?.clientId && filter.clientId !== 'all') {
+      items = items.filter((item) => item.client_id === filter.clientId);
+    }
+    if (filter?.documentType && filter.documentType !== 'all') {
+      items = items.filter((item) => item.document_type === filter.documentType);
+    }
+    if (filter?.period && filter.period !== 'all') {
+      items = items.filter((item) => item.period === filter.period);
+    }
+    if (filter?.validationStatus && filter.validationStatus !== 'all') {
+      items = items.filter((item) => item.validation_status === filter.validationStatus);
+    }
+
+    // Apply Sorting
+    const sort = filter?.sortBy || 'newest';
+    items.sort((a, b) => {
+      if (sort === 'newest') return new Date(b.received_at).getTime() - new Date(a.received_at).getTime();
+      if (sort === 'oldest') return new Date(a.received_at).getTime() - new Date(b.received_at).getTime();
+      if (sort === 'lowest_confidence') return a.ai_confidence - b.ai_confidence;
+      if (sort === 'highest_confidence') return b.ai_confidence - a.ai_confidence;
+      if (sort === 'needs_attention') {
+        const score = (x: IntakeItem) => (x.validation_status === 'Review Required' || x.is_exception ? 2 : 1);
+        return score(b) - score(a);
+      }
+      return 0;
+    });
+
+    return items;
+  }
+
+  getIntakeSummary(): { all: number; needs_review: number; exceptions: number; processed: number } {
+    const allItems = this.getIntakeItems();
+    return {
+      all: allItems.length, // 8
+      needs_review: allItems.filter((i) => i.validation_status === 'Review Required' && !i.is_exception).length, // 2
+      exceptions: allItems.filter((i) => i.is_exception).length, // 1
+      processed: allItems.filter((i) => i.validation_status === 'Valid' && i.processing_status === 'Processed').length, // 5
+    };
+  }
+
+  getIntakeItemById(id: string): IntakeItem | undefined {
+    return this.getIntakeItems().find((item) => item.document_id === id);
+  }
+
+  // DERIVED ATTENTION METRICS (Consistent with Dashboard)
   getDashboardAttentionMetrics(): DashboardAttentionMetrics {
     const missingDocsCount = this.alerts.filter(
       (a) => a.alert_type === 'Missing Document' && a.status === 'Open'
@@ -103,15 +269,13 @@ class DataService {
       (r) => r.status === 'Pending Approval'
     ).length;
 
-    const autoProcessedCount = this.documents.filter(
-      (d) => d.processing_status === 'Processed' && d.validation_status === 'Valid' && d.ai_confidence >= 0.95
-    ).length + 20;
+    const autoProcessedCount = 24;
 
     return {
       missing_documents: missingDocsCount || 2,
       needs_review: needsReviewCount || 3,
       pending_approval: pendingApprovalCount || 2,
-      automatically_processed: autoProcessedCount || 24,
+      automatically_processed: autoProcessedCount,
     };
   }
 
@@ -169,6 +333,7 @@ class DataService {
     return mockComplianceData;
   }
 
+  // MUTATIONS (Local UI Mock State Updates)
   approveReminder(reminderId: string, approvedBy: string = 'CA Arun'): boolean {
     const reminder = this.reminders.find((r) => r.reminder_id === reminderId);
     if (reminder) {
@@ -230,6 +395,53 @@ class DataService {
         old_value: oldVal,
         new_value: status,
         reason: notes || 'Partner decision updated',
+      });
+      return true;
+    }
+    return false;
+  }
+
+  updateDocumentClassification(docId: string, newType: any, user: string = 'CA Arun'): boolean {
+    const doc = this.documents.find((d) => d.document_id === docId);
+    if (doc) {
+      const oldType = doc.document_type;
+      doc.document_type = newType;
+      doc.validation_status = 'Valid';
+      doc.ai_confidence = 1.0;
+      this.auditLogs.unshift({
+        log_id: `aud_${Date.now()}`,
+        firm_id: this.firm.firm_id,
+        timestamp: new Date().toISOString(),
+        user,
+        action: 'CLASSIFICATION_CORRECTED_BY_CA',
+        entity_type: 'DOCUMENT',
+        entity_id: docId,
+        old_value: oldType,
+        new_value: newType,
+        reason: 'CA Partner manual classification correction',
+      });
+      return true;
+    }
+    return false;
+  }
+
+  updateDocumentPeriod(docId: string, newPeriod: string, user: string = 'CA Arun'): boolean {
+    const doc = this.documents.find((d) => d.document_id === docId);
+    if (doc) {
+      const oldPeriod = doc.period;
+      doc.period = newPeriod;
+      doc.validation_status = 'Valid';
+      this.auditLogs.unshift({
+        log_id: `aud_${Date.now()}`,
+        firm_id: this.firm.firm_id,
+        timestamp: new Date().toISOString(),
+        user,
+        action: 'PERIOD_CORRECTED_BY_CA',
+        entity_type: 'DOCUMENT',
+        entity_id: docId,
+        old_value: oldPeriod,
+        new_value: newPeriod,
+        reason: 'CA Partner statutory filing period update',
       });
       return true;
     }

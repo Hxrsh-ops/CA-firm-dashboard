@@ -19,6 +19,7 @@ export type DocumentType =
   | 'Payroll Summary'
   | 'Payroll Register'
   | 'TDS Return'
+  | 'Customs Duty Challan'
   | 'GST 3B Supporting'
   | 'GSTR-1 Data';
 
@@ -75,7 +76,7 @@ export interface DocumentRequirement {
   client_id: string;
   document_type: DocumentType;
   frequency: 'Monthly' | 'Quarterly' | 'Annual' | 'Ad-hoc';
-  due_day: number; // e.g. 10th of every month
+  due_day: number;
   active: boolean;
   created_at: string;
 }
@@ -86,7 +87,7 @@ export interface PeriodRequirement {
   firm_id: string;
   client_id: string;
   document_type: DocumentType;
-  period: string; // e.g., 'Aug 2026'
+  period: string;
   status: PeriodRequirementStatus;
   reason?: string;
   updated_by: string;
@@ -111,6 +112,7 @@ export interface Document {
   created_at: string;
   notes?: string;
   file_size?: string;
+  email_subject?: string;
 }
 
 // 6. ALERTS
@@ -190,7 +192,7 @@ export interface PriorityWorkItem {
   assigned_to: string;
   due_date: string;
   action_hint?: string;
-  context_id?: string; // id of document / alert / reminder
+  context_id?: string;
 }
 
 export interface RecentActivityItem {
@@ -234,4 +236,56 @@ export interface ComplianceDistribution {
   not_required: number;
   total: number;
   on_track_percentage: number;
+}
+
+// ========================================================
+// AI INTAKE INBOX DERIVED MODELS
+// ========================================================
+
+export type IntakeTabFilter = 'all' | 'needs_review' | 'exceptions' | 'processed';
+
+export interface RuleCheckResult {
+  client_exists: boolean;
+  doc_type_recognized: boolean;
+  period_identified: boolean;
+  requirement_exists: boolean;
+  auto_process_eligible: boolean;
+  review_required_reason?: string;
+}
+
+export interface EmailAttachmentItem {
+  filename: string;
+  document_type: string;
+  status: ValidationStatus;
+  confidence: number;
+  is_current?: boolean;
+}
+
+export interface IntakeItem {
+  document_id: string;
+  filename: string;
+  file_size: string;
+  client_id: string;
+  client_name: string;
+  client_initials: string;
+  entity_type: EntityType;
+  assigned_ca: string;
+  document_type: DocumentType;
+  period: string;
+  ai_confidence: number;
+  validation_status: ValidationStatus;
+  processing_status: ProcessingStatus;
+  received_at: string;
+  received_formatted: string;
+  sender_email: string;
+  email_subject: string;
+  total_attachments: number;
+  attachment_index: number;
+  is_exception: boolean;
+  exception_type?: AlertType;
+  exception_message?: string;
+  review_reason?: string;
+  notes?: string;
+  rule_checks: RuleCheckResult;
+  email_attachments: EmailAttachmentItem[];
 }

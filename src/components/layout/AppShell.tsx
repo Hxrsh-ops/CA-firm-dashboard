@@ -6,6 +6,7 @@ import { GlobalSearchModal } from '../common/GlobalSearchModal';
 import { AskCopilotDrawer } from '../common/AskCopilotDrawer';
 import { WorkItemDetailModal } from '../common/WorkItemDetailModal';
 import type { PriorityWorkItem } from '../../types';
+import { dataService } from '../../services/dataService';
 import { Menu, X } from 'lucide-react';
 
 interface AppShellProps {
@@ -41,6 +42,10 @@ export const AppShell: React.FC<AppShellProps> = ({
     setIsCopilotDrawerOpen(true);
   };
 
+  const inboxSummary = dataService.getIntakeSummary();
+  const alertsCount = dataService.getAlerts('Open').length;
+  const remindersCount = dataService.getReminders('Pending Approval').length;
+
   return (
     <div className="min-h-screen bg-[#F8F7F4] flex flex-col md:flex-row text-espresso">
       {/* Mobile Top Header (Small Screens Only) */}
@@ -66,6 +71,9 @@ export const AppShell: React.FC<AppShellProps> = ({
         <Sidebar
           activeTab={activeTab}
           onSelectTab={onSelectTab}
+          unreadInboxCount={inboxSummary.all}
+          openAlertsCount={alertsCount}
+          pendingRemindersCount={remindersCount}
         />
       </div>
 
@@ -83,6 +91,9 @@ export const AppShell: React.FC<AppShellProps> = ({
                 onSelectTab(tab);
                 setIsMobileSidebarOpen(false);
               }}
+              unreadInboxCount={inboxSummary.all}
+              openAlertsCount={alertsCount}
+              pendingRemindersCount={remindersCount}
             />
           </div>
         </div>
@@ -94,6 +105,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         <TopBar
           onOpenSearch={handleOpenSearch}
           onOpenCopilot={() => setIsCopilotDrawerOpen(true)}
+          notificationCount={inboxSummary.needs_review + alertsCount}
         />
 
         {/* Dynamic Page Content View */}
