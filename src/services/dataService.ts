@@ -30,6 +30,8 @@ import {
   mockPendingTrend,
   mockComplianceData,
 } from '../data/mockData';
+import { apiClient } from './apiClient';
+import type { DataConnectionStatus } from './apiClient';
 
 class DataService {
   private firm: Firm = { ...mockFirm };
@@ -42,6 +44,64 @@ class DataService {
   private priorityWork: PriorityWorkItem[] = [...mockPriorityWorkItems];
   private recentActivities: RecentActivityItem[] = [...mockRecentActivities];
   private upcomingReminders: UpcomingReminderItem[] = [...mockUpcomingReminders];
+  private connectionStatus: DataConnectionStatus = 'live';
+
+  constructor() {
+    // Attempt background sync with live backend API on startup
+    this.syncWithBackend().catch(() => {
+      // If backend is unreachable, mark connectionStatus as unavailable or demo
+      this.connectionStatus = 'demo';
+    });
+  }
+
+  getConnectionStatus(): DataConnectionStatus {
+    return this.connectionStatus;
+  }
+
+  setConnectionStatus(status: DataConnectionStatus) {
+    this.connectionStatus = status;
+  }
+
+  /**
+   * Synchronize state from authoritative /api/v1 backend
+   */
+  async syncWithBackend(): Promise<boolean> {
+    try {
+      const [dashboardData, clientsData, alertsData, remindersData, auditData] = await Promise.all([
+        apiClient.getDashboard(),
+        apiClient.getClients(),
+        apiClient.getAlerts(),
+        apiClient.getReminders(),
+        apiClient.getAuditLog()
+      ]);
+
+      if (clientsData && Array.isArray(clientsData)) {
+        this.clients = clientsData;
+      }
+      if (alertsData && Array.isArray(alertsData)) {
+        this.alerts = alertsData;
+      }
+      if (remindersData && Array.isArray(remindersData)) {
+        this.reminders = remindersData;
+      }
+      if (auditData && Array.isArray(auditData)) {
+        this.auditLogs = auditData;
+      }
+      if (dashboardData?.priority_work) {
+        this.priorityWork = dashboardData.priority_work;
+      }
+      if (dashboardData?.recent_activity) {
+        this.recentActivities = dashboardData.recent_activity;
+      }
+
+      this.connectionStatus = 'live';
+      return true;
+    } catch (err) {
+      console.warn('[DataService] Live backend sync failed, using cached operational context:', err);
+      this.connectionStatus = 'demo';
+      return false;
+    }
+  }
 
   getFirm(): Firm {
     return this.firm;
@@ -145,9 +205,9 @@ class DataService {
 
       // Format received date nicely
       const recDate = new Date(doc.received_at);
-      const timeStr = recDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-      const dayStr = `${recDate.getDate()} Sep`;
-      const receivedFormatted = `${dayStr} · ${timeStr}`;
+      const timeStr = isNaN(recDate.getTime()) ? '' : recDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+      const dayStr = isNaN(recDate.getTime()) ? doc.received_at : `${recDate.getDate()} Sep`;
+      const receivedFormatted = timeStr ? `${dayStr} · ${timeStr}` : dayStr;
 
       return {
         document_id: doc.document_id,
@@ -244,10 +304,10 @@ class DataService {
   getIntakeSummary(): { all: number; needs_review: number; exceptions: number; processed: number } {
     const allItems = this.getIntakeItems();
     return {
-      all: allItems.length, // 8
-      needs_review: allItems.filter((i) => i.validation_status === 'Review Required' && !i.is_exception).length, // 2
-      exceptions: allItems.filter((i) => i.is_exception).length, // 1
-      processed: allItems.filter((i) => i.validation_status === 'Valid' && i.processing_status === 'Processed').length, // 5
+      all: allItems.length,
+      needs_review: allItems.filter((i) => i.validation_status === 'Review Required' && !i.is_exception).length,
+      exceptions: allItems.filter((i) => i.is_exception).length,
+      processed: allItems.filter((i) => i.validation_status === 'Valid' && i.processing_status === 'Processed').length,
     };
   }
 
@@ -333,7 +393,7 @@ class DataService {
     return mockComplianceData;
   }
 
-  // MUTATIONS (Local UI Mock State Updates)
+  // MUTATIONS (Synchronous cache update + Async API dispatch)
   approveReminder(reminderId: string, approvedBy: string = 'CA Arun'): boolean {
     const reminder = this.reminders.find((r) => r.reminder_id === reminderId);
     if (reminder) {
@@ -351,6 +411,12 @@ class DataService {
         new_value: 'Approved',
         reason: 'CA partner manual one-click sign-off',
       });
+
+      // Dispatch to API in background
+      apiClient.approveReminder(reminderId, approvedBy).catch((err) => {
+        console.warn('[DataService] Background approveReminder API call failed:', err);
+      });
+
       return true;
     }
     return false;
@@ -373,6 +439,12 @@ class DataService {
         new_value: 'Resolved',
         reason: 'Manually cleared by partner review',
       });
+
+      // Dispatch to API in background
+      apiClient.updateAlert(alertId, { status: 'Resolved' }).catch((err) => {
+        console.warn('[DataService] Background updateAlert API call failed:', err);
+      });
+
       return true;
     }
     return false;
@@ -396,6 +468,13 @@ class DataService {
         new_value: status,
         reason: notes || 'Partner decision updated',
       });
+
+      // Dispatch to API in background
+      const action = status === 'Valid' ? 'approve' : 'reject';
+      apiClient.reviewDocument(docId, { action, notes }).catch((err) => {
+        console.warn('[DataService] Background reviewDocument API call failed:', err);
+      });
+
       return true;
     }
     return false;
@@ -420,6 +499,12 @@ class DataService {
         new_value: newType,
         reason: 'CA Partner manual classification correction',
       });
+
+      // Dispatch to API in background
+      apiClient.reviewDocument(docId, { action: 'reclassify', document_type: newType }).catch((err) => {
+        console.warn('[DataService] Background reclassify API call failed:', err);
+      });
+
       return true;
     }
     return false;
@@ -443,6 +528,12 @@ class DataService {
         new_value: newPeriod,
         reason: 'CA Partner statutory filing period update',
       });
+
+      // Dispatch to API in background
+      apiClient.reviewDocument(docId, { action: 'reclassify', period: newPeriod }).catch((err) => {
+        console.warn('[DataService] Background reclassify period API call failed:', err);
+      });
+
       return true;
     }
     return false;
