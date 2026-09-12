@@ -10,7 +10,7 @@ import { AuditService } from '../src/services/auditService.js';
 
 describe('CA Copilot Core Business Rules & Services', () => {
   let uow: MemoryUnitOfWork;
-  const FIRM_ID = 'FIRM-001';
+  const FIRM_ID = 'FIR-001';
 
   beforeEach(() => {
     uow = new MemoryUnitOfWork(getInitialSeedData());
@@ -231,8 +231,8 @@ describe('CA Copilot Core Business Rules & Services', () => {
 
     it('isolates data between different firms (Multi-Tenancy)', async () => {
       const clientService = new ClientMatchingService(uow);
-      const firm1Clients = await clientService.getAllClients('FIRM-001');
-      const firm2Clients = await clientService.getAllClients('FIRM-002');
+      const firm1Clients = await clientService.getAllClients('FIR-001');
+      const firm2Clients = await clientService.getAllClients('FIR-002');
 
       expect(firm1Clients.length).toBe(5);
       expect(firm2Clients.length).toBe(0); // No clients seeded for FIRM-002

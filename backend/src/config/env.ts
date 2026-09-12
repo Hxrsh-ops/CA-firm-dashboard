@@ -22,7 +22,7 @@ export const env: EnvConfig = {
   NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
   API_PREFIX: process.env.API_PREFIX || '/api/v1',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  DEFAULT_FIRM_ID: process.env.DEFAULT_FIRM_ID || 'FIRM-001',
+  DEFAULT_FIRM_ID: process.env.DEFAULT_FIRM_ID || 'FIR-001',
   WEBHOOK_SECRET: process.env.WEBHOOK_SECRET || 'ca_copilot_webhook_secret_dev_key_12345',
   MAKE_REMINDER_WEBHOOK_URL: process.env.MAKE_REMINDER_WEBHOOK_URL || '',
   REPOSITORY_MODE: (process.env.REPOSITORY_MODE as 'memory' | 'sheets') || 'memory',

@@ -26,19 +26,19 @@ import {
 export function getInitialSeedData() {
   const firms: Firm[] = [
     {
-      firm_id: 'FIRM-001',
-      legal_name: 'Apex Accounting & Advisory LLP',
-      display_name: 'Apex Advisory',
-      firm_type: 'LLP',
-      primary_email: 'compliance@apexadvisory.in',
-      primary_phone: '+91 22 4900 1200',
-      address: 'Nariman Point, Mumbai, Maharashtra 400021',
+      firm_id: 'FIR-001',
+      legal_name: 'Vertex & Associates',
+      display_name: 'Chartered Accountants, Chennai',
+      firm_type: 'Chartered Accountants',
+      primary_email: 'admin@vertexca.example',
+      primary_phone: '+91-9000000000',
+      address: 'Chennai',
       timezone: 'Asia/Kolkata',
       active: true,
       created_at: '2026-01-01T09:00:00Z'
     },
     {
-      firm_id: 'FIRM-002',
+      firm_id: 'FIR-002',
       legal_name: 'Beacon & Co Chartered Accountants',
       display_name: 'Beacon CA',
       firm_type: 'Partnership',
@@ -54,7 +54,7 @@ export function getInitialSeedData() {
   const clients: Client[] = [
     {
       client_id: 'CLI-001',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       legal_name: 'Acme Global Pvt Ltd',
       display_name: 'Acme Global',
       entity_type: 'Private Limited',
@@ -66,7 +66,7 @@ export function getInitialSeedData() {
     },
     {
       client_id: 'CLI-002',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       legal_name: 'Nexus FinTech LLP',
       display_name: 'Nexus FinTech',
       entity_type: 'LLP',
@@ -78,7 +78,7 @@ export function getInitialSeedData() {
     },
     {
       client_id: 'CLI-003',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       legal_name: 'Vanguard Retail Enterprises',
       display_name: 'Vanguard Retail',
       entity_type: 'Proprietorship',
@@ -90,7 +90,7 @@ export function getInitialSeedData() {
     },
     {
       client_id: 'CLI-004',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       legal_name: 'Zenith Logistics Ltd',
       display_name: 'Zenith Logistics',
       entity_type: 'Public Limited',
@@ -102,7 +102,7 @@ export function getInitialSeedData() {
     },
     {
       client_id: 'CLI-005',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       legal_name: 'BlueSky Exports Pvt Ltd',
       display_name: 'BlueSky Exports',
       entity_type: 'Private Limited',
@@ -116,34 +116,34 @@ export function getInitialSeedData() {
 
   const documentRequirements: DocumentRequirement[] = [
     // Acme Global
-    { requirement_id: 'REQ-001', firm_id: 'FIRM-001', client_id: 'CLI-001', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-10T10:00:00Z' },
-    { requirement_id: 'REQ-002', firm_id: 'FIRM-001', client_id: 'CLI-001', document_type: 'Purchase Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-10T10:00:00Z' },
-    { requirement_id: 'REQ-003', firm_id: 'FIRM-001', client_id: 'CLI-001', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 7, active: true, created_at: '2026-01-10T10:00:00Z' },
-    { requirement_id: 'REQ-004', firm_id: 'FIRM-001', client_id: 'CLI-001', document_type: 'Payroll Register', frequency: 'Monthly', due_day: 5, active: true, created_at: '2026-01-10T10:00:00Z' },
+    { requirement_id: 'REQ-001', firm_id: 'FIR-001', client_id: 'CLI-001', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-10T10:00:00Z' },
+    { requirement_id: 'REQ-002', firm_id: 'FIR-001', client_id: 'CLI-001', document_type: 'Purchase Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-10T10:00:00Z' },
+    { requirement_id: 'REQ-003', firm_id: 'FIR-001', client_id: 'CLI-001', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 7, active: true, created_at: '2026-01-10T10:00:00Z' },
+    { requirement_id: 'REQ-004', firm_id: 'FIR-001', client_id: 'CLI-001', document_type: 'Payroll Register', frequency: 'Monthly', due_day: 5, active: true, created_at: '2026-01-10T10:00:00Z' },
     
     // Nexus FinTech
-    { requirement_id: 'REQ-005', firm_id: 'FIRM-001', client_id: 'CLI-002', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-12T10:00:00Z' },
-    { requirement_id: 'REQ-006', firm_id: 'FIRM-001', client_id: 'CLI-002', document_type: 'Purchase Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-12T10:00:00Z' },
-    { requirement_id: 'REQ-007', firm_id: 'FIRM-001', client_id: 'CLI-002', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 7, active: true, created_at: '2026-01-12T10:00:00Z' },
+    { requirement_id: 'REQ-005', firm_id: 'FIR-001', client_id: 'CLI-002', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-12T10:00:00Z' },
+    { requirement_id: 'REQ-006', firm_id: 'FIR-001', client_id: 'CLI-002', document_type: 'Purchase Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-12T10:00:00Z' },
+    { requirement_id: 'REQ-007', firm_id: 'FIR-001', client_id: 'CLI-002', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 7, active: true, created_at: '2026-01-12T10:00:00Z' },
     
     // Vanguard Retail
-    { requirement_id: 'REQ-008', firm_id: 'FIRM-001', client_id: 'CLI-003', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-15T10:00:00Z' },
-    { requirement_id: 'REQ-009', firm_id: 'FIRM-001', client_id: 'CLI-003', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 7, active: true, created_at: '2026-01-15T10:00:00Z' },
+    { requirement_id: 'REQ-008', firm_id: 'FIR-001', client_id: 'CLI-003', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-15T10:00:00Z' },
+    { requirement_id: 'REQ-009', firm_id: 'FIR-001', client_id: 'CLI-003', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 7, active: true, created_at: '2026-01-15T10:00:00Z' },
 
     // Zenith Logistics
-    { requirement_id: 'REQ-010', firm_id: 'FIRM-001', client_id: 'CLI-004', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-20T10:00:00Z' },
-    { requirement_id: 'REQ-011', firm_id: 'FIRM-001', client_id: 'CLI-004', document_type: 'Purchase Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-20T10:00:00Z' },
-    { requirement_id: 'REQ-012', firm_id: 'FIRM-001', client_id: 'CLI-004', document_type: 'Customs Duty Challan', frequency: 'Monthly', due_day: 15, active: true, created_at: '2026-01-20T10:00:00Z' },
+    { requirement_id: 'REQ-010', firm_id: 'FIR-001', client_id: 'CLI-004', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-20T10:00:00Z' },
+    { requirement_id: 'REQ-011', firm_id: 'FIR-001', client_id: 'CLI-004', document_type: 'Purchase Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-01-20T10:00:00Z' },
+    { requirement_id: 'REQ-012', firm_id: 'FIR-001', client_id: 'CLI-004', document_type: 'Customs Duty Challan', frequency: 'Monthly', due_day: 15, active: true, created_at: '2026-01-20T10:00:00Z' },
 
     // BlueSky Exports
-    { requirement_id: 'REQ-013', firm_id: 'FIRM-001', client_id: 'CLI-005', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-02-01T10:00:00Z' },
-    { requirement_id: 'REQ-014', firm_id: 'FIRM-001', client_id: 'CLI-005', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 7, active: true, created_at: '2026-02-01T10:00:00Z' }
+    { requirement_id: 'REQ-013', firm_id: 'FIR-001', client_id: 'CLI-005', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2026-02-01T10:00:00Z' },
+    { requirement_id: 'REQ-014', firm_id: 'FIR-001', client_id: 'CLI-005', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 7, active: true, created_at: '2026-02-01T10:00:00Z' }
   ];
 
   const periodRequirements: PeriodRequirement[] = [
     {
       period_requirement_id: 'PRQ-001',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-004',
       document_type: 'Customs Duty Challan',
       period: '2026-08',
@@ -157,7 +157,7 @@ export function getInitialSeedData() {
   const documents: Document[] = [
     {
       document_id: 'DOC-001',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-001',
       document_type: 'Sales Register',
       period: '2026-08',
@@ -174,7 +174,7 @@ export function getInitialSeedData() {
     },
     {
       document_id: 'DOC-002',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-001',
       document_type: 'Bank Statement',
       period: '2026-08',
@@ -191,7 +191,7 @@ export function getInitialSeedData() {
     },
     {
       document_id: 'DOC-003',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-002',
       document_type: 'Purchase Register',
       period: '2026-08',
@@ -209,7 +209,7 @@ export function getInitialSeedData() {
     },
     {
       document_id: 'DOC-004',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-003',
       document_type: 'Sales Register',
       period: '2026-07',
@@ -227,7 +227,7 @@ export function getInitialSeedData() {
     },
     {
       document_id: 'DOC-005',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-005',
       document_type: 'Bank Statement',
       period: '2026-08',
@@ -247,7 +247,7 @@ export function getInitialSeedData() {
   const alerts: Alert[] = [
     {
       alert_id: 'ALT-001',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-001',
       document_type: 'Purchase Register',
       period: '2026-08',
@@ -260,7 +260,7 @@ export function getInitialSeedData() {
     },
     {
       alert_id: 'ALT-002',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-002',
       document_type: 'Purchase Register',
       period: '2026-08',
@@ -273,7 +273,7 @@ export function getInitialSeedData() {
     },
     {
       alert_id: 'ALT-003',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-003',
       document_type: 'Sales Register',
       period: '2026-07',
@@ -289,13 +289,13 @@ export function getInitialSeedData() {
   const reminders: Reminder[] = [
     {
       reminder_id: 'REM-001',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-001',
       document_type: 'Purchase Register',
       period: '2026-08',
       recipient_email: 'finance@acmeglobal.com',
       subject: 'Urgent: Missing Purchase Register for August 2026 - Acme Global',
-      body: 'Dear Acme Global Finance Team,\n\nOur compliance records indicate that your Purchase Register for August 2026 (due 10-Sep-2026) is pending. Please upload or reply with the file to avoid statutory delay.\n\nRegards,\nApex Advisory',
+      body: 'Dear Acme Global Finance Team,\n\nOur compliance records indicate that your Purchase Register for August 2026 (due 10-Sep-2026) is pending. Please upload or reply with the file to avoid statutory delay.\n\nRegards,\nVertex & Associates',
       status: 'Pending Approval',
       created_at: '2026-09-11T09:00:00Z',
       sent_at: null,
@@ -303,13 +303,13 @@ export function getInitialSeedData() {
     },
     {
       reminder_id: 'REM-002',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       client_id: 'CLI-003',
       document_type: 'Bank Statement',
       period: '2026-08',
       recipient_email: 'tax@vanguardretail.in',
       subject: 'Reminder: August 2026 Bank Statement Pending - Vanguard Retail',
-      body: 'Dear Vanguard Retail Team,\n\nPlease provide your primary bank statement for August 2026 at your earliest convenience.\n\nRegards,\nApex Advisory',
+      body: 'Dear Vanguard Retail Team,\n\nPlease provide your primary bank statement for August 2026 at your earliest convenience.\n\nRegards,\nVertex & Associates',
       status: 'Draft',
       created_at: '2026-09-11T10:00:00Z',
       sent_at: null,
@@ -320,7 +320,7 @@ export function getInitialSeedData() {
   const auditLogs: AuditLog[] = [
     {
       log_id: 'LOG-001',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       timestamp: '2026-09-08T10:32:00Z',
       user: 'Make.com Ingestion Webhook',
       action: 'DOCUMENT_INGESTED',
@@ -332,7 +332,7 @@ export function getInitialSeedData() {
     },
     {
       log_id: 'LOG-002',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       timestamp: '2026-09-09T14:23:00Z',
       user: 'CA Copilot Rule Engine',
       action: 'ALERT_CREATED',
@@ -344,7 +344,7 @@ export function getInitialSeedData() {
     },
     {
       log_id: 'LOG-003',
-      firm_id: 'FIRM-001',
+      firm_id: 'FIR-001',
       timestamp: '2026-09-11T09:00:00Z',
       user: 'Compliance Engine',
       action: 'REMINDER_DRAFTED',
@@ -357,11 +357,11 @@ export function getInitialSeedData() {
   ];
 
   const settings: Setting[] = [
-    { setting_id: 'SET-001', firm_id: 'FIRM-001', category: 'AI', setting_key: 'AUTO_PROCESS_CONFIDENCE', setting_value: '0.95', description: 'Confidence threshold (>= 0.95) for automatic document processing', active: true, updated_at: '2026-01-01T00:00:00Z' },
-    { setting_id: 'SET-002', firm_id: 'FIRM-001', category: 'AI', setting_key: 'REVIEW_CONFIDENCE', setting_value: '0.80', description: 'Confidence threshold (0.80 to 0.949) below which CA review is required', active: true, updated_at: '2026-01-01T00:00:00Z' },
-    { setting_id: 'SET-003', firm_id: 'FIRM-001', category: 'System', setting_key: 'DEFAULT_TIMEZONE', setting_value: 'Asia/Kolkata', description: 'Default timezone for CA compliance deadlines and logs', active: true, updated_at: '2026-01-01T00:00:00Z' },
-    { setting_id: 'SET-004', firm_id: 'FIRM-001', category: 'System', setting_key: 'DEFAULT_PERIOD_FORMAT', setting_value: 'YYYY-MM', description: 'Standard period formatting structure', active: true, updated_at: '2026-01-01T00:00:00Z' },
-    { setting_id: 'SET-005', firm_id: 'FIRM-001', category: 'Notifications', setting_key: 'ENABLE_REMINDERS', setting_value: 'true', description: 'Enable CA reminder drafting workflow', active: true, updated_at: '2026-01-01T00:00:00Z' }
+    { setting_id: 'SET-001', firm_id: 'FIR-001', category: 'AI', setting_key: 'AUTO_PROCESS_CONFIDENCE', setting_value: '0.95', description: 'Confidence threshold (>= 0.95) for automatic document processing', active: true, updated_at: '2026-01-01T00:00:00Z' },
+    { setting_id: 'SET-002', firm_id: 'FIR-001', category: 'AI', setting_key: 'REVIEW_CONFIDENCE', setting_value: '0.80', description: 'Confidence threshold (0.80 to 0.949) below which CA review is required', active: true, updated_at: '2026-01-01T00:00:00Z' },
+    { setting_id: 'SET-003', firm_id: 'FIR-001', category: 'System', setting_key: 'DEFAULT_TIMEZONE', setting_value: 'Asia/Kolkata', description: 'Default timezone for CA compliance deadlines and logs', active: true, updated_at: '2026-01-01T00:00:00Z' },
+    { setting_id: 'SET-004', firm_id: 'FIR-001', category: 'System', setting_key: 'DEFAULT_PERIOD_FORMAT', setting_value: 'YYYY-MM', description: 'Standard period formatting structure', active: true, updated_at: '2026-01-01T00:00:00Z' },
+    { setting_id: 'SET-005', firm_id: 'FIR-001', category: 'Notifications', setting_key: 'ENABLE_REMINDERS', setting_value: 'true', description: 'Enable CA reminder drafting workflow', active: true, updated_at: '2026-01-01T00:00:00Z' }
   ];
 
   return {

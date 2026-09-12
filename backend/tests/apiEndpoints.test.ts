@@ -5,7 +5,7 @@ import { resetUnitOfWorkForTesting, MemoryUnitOfWork, getInitialSeedData } from 
 import { env } from '../src/config/env.js';
 
 describe('CA Copilot API v1 HTTP Endpoints & Webhooks', () => {
-  const FIRM_ID = 'FIRM-001';
+  const FIRM_ID = 'FIR-001';
 
   beforeEach(() => {
     resetUnitOfWorkForTesting(new MemoryUnitOfWork(getInitialSeedData()));

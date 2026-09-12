@@ -8,7 +8,7 @@ export type DataConnectionStatus = 'live' | 'demo' | 'unavailable';
 const API_BASE = '/api/v1';
 
 class ApiClient {
-  private firmId: string = 'FIRM-001';
+  private firmId: string = 'FIR-001';
   private connectionStatus: DataConnectionStatus = 'live';
 
   setFirmId(id: string) {

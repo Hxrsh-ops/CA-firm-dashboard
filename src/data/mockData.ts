@@ -15,23 +15,23 @@ import type {
 
 // 1. FIRM
 export const mockFirm: Firm = {
-  firm_id: 'firm_va_001',
-  legal_name: 'Vertex & Associates, Chartered Accountants',
-  display_name: 'Vertex & Associates',
-  firm_type: 'Partnership Firm',
-  primary_email: 'compliance@vertexca.in',
-  primary_phone: '+91 22 4982 3300',
-  address: 'Level 8, Express Towers, Nariman Point, Mumbai 400021',
+  firm_id: 'FIR-001',
+  legal_name: 'Vertex & Associates',
+  display_name: 'Chartered Accountants, Chennai',
+  firm_type: 'Chartered Accountants',
+  primary_email: 'admin@vertexca.example',
+  primary_phone: '+91-9000000000',
+  address: 'Chennai',
   timezone: 'Asia/Kolkata',
   active: true,
-  created_at: '2024-01-15T09:00:00Z',
+  created_at: '2026-01-01T09:00:00Z',
 };
 
 // 2. CLIENTS (18 Realistic Indian Entities)
 export const mockClients: Client[] = [
   {
     client_id: 'cli_qb_01',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Quantum Bridge Technologies Private Limited',
     display_name: 'Quantum Bridge',
     entity_type: 'Private Limited',
@@ -43,7 +43,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_me_02',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Meridian Engineering Solutions Private Limited',
     display_name: 'Meridian Engineering',
     entity_type: 'Private Limited',
@@ -55,7 +55,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_bp_03',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'BluePeak Retail Private Limited',
     display_name: 'BluePeak Retail',
     entity_type: 'Private Limited',
@@ -67,7 +67,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_sl_04',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'SwiftLogix Solutions Private Limited',
     display_name: 'SwiftLogix Solutions',
     entity_type: 'Private Limited',
@@ -79,7 +79,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_gc_05',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'GreenCart Ventures LLP',
     display_name: 'GreenCart Ventures',
     entity_type: 'LLP',
@@ -91,7 +91,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_gl_06',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'GreenLeaf Foods Private Limited',
     display_name: 'GreenLeaf Foods',
     entity_type: 'Private Limited',
@@ -103,7 +103,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_nx_07',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Nexora Digital Services Private Limited',
     display_name: 'Nexora Digital',
     entity_type: 'Private Limited',
@@ -115,7 +115,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_hv_08',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'HarborView Exports Private Limited',
     display_name: 'HarborView Exports',
     entity_type: 'Private Limited',
@@ -127,7 +127,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_un_09',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'UrbanNest Interiors',
     display_name: 'UrbanNest Interiors',
     entity_type: 'Partnership',
@@ -139,7 +139,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_aa_10',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Apex Auto Components Private Limited',
     display_name: 'Apex Auto Components',
     entity_type: 'Private Limited',
@@ -151,7 +151,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_sh_11',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'SilverLine Healthcare Services Private Limited',
     display_name: 'SilverLine Healthcare',
     entity_type: 'Private Limited',
@@ -163,7 +163,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_cs_12',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'CedarStone Consulting LLP',
     display_name: 'CedarStone Consulting',
     entity_type: 'LLP',
@@ -175,7 +175,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_ka_13',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Kaveri Agro Tech Enterprises',
     display_name: 'Kaveri Agro',
     entity_type: 'Proprietorship',
@@ -187,7 +187,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_tp_14',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Trident Precision Fasteners Private Limited',
     display_name: 'Trident Precision',
     entity_type: 'Private Limited',
@@ -199,7 +199,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_os_15',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'OmniSphere Cloud Innovations LLP',
     display_name: 'OmniSphere Cloud',
     entity_type: 'LLP',
@@ -211,7 +211,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_el_16',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Elevate Logistics Hub Private Limited',
     display_name: 'Elevate Logistics',
     entity_type: 'Private Limited',
@@ -223,7 +223,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_vr_17',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Vanguard Renewable Power Private Limited',
     display_name: 'Vanguard Renewable',
     entity_type: 'Private Limited',
@@ -235,7 +235,7 @@ export const mockClients: Client[] = [
   },
   {
     client_id: 'cli_zo_18',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     legal_name: 'Zenith Organic Living LLP',
     display_name: 'Zenith Organics',
     entity_type: 'LLP',
@@ -249,31 +249,31 @@ export const mockClients: Client[] = [
 
 // 3. DOCUMENT_REQUIREMENTS
 export const mockDocumentRequirements: DocumentRequirement[] = [
-  { requirement_id: 'req_01', firm_id: 'firm_va_001', client_id: 'cli_qb_01', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 10, active: true, created_at: '2024-03-01T10:00:00Z' },
-  { requirement_id: 'req_02', firm_id: 'firm_va_001', client_id: 'cli_qb_01', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2024-03-01T10:00:00Z' },
-  { requirement_id: 'req_03', firm_id: 'firm_va_001', client_id: 'cli_me_02', document_type: 'Expense Bills', frequency: 'Monthly', due_day: 12, active: true, created_at: '2024-02-15T11:30:00Z' },
-  { requirement_id: 'req_04', firm_id: 'firm_va_001', client_id: 'cli_bp_03', document_type: 'Payroll Register', frequency: 'Monthly', due_day: 7, active: true, created_at: '2024-01-20T09:15:00Z' },
-  { requirement_id: 'req_05', firm_id: 'firm_va_001', client_id: 'cli_sl_04', document_type: 'Sales Register', frequency: 'Monthly', due_day: 11, active: true, created_at: '2024-04-10T14:20:00Z' },
-  { requirement_id: 'req_06', firm_id: 'firm_va_001', client_id: 'cli_gc_05', document_type: 'TDS Return', frequency: 'Monthly', due_day: 15, active: true, created_at: '2024-05-02T16:00:00Z' },
-  { requirement_id: 'req_07', firm_id: 'firm_va_001', client_id: 'cli_gl_06', document_type: 'Purchase Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2024-02-01T10:00:00Z' },
-  { requirement_id: 'req_08', firm_id: 'firm_va_001', client_id: 'cli_nx_07', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 10, active: true, created_at: '2024-03-12T11:00:00Z' },
+  { requirement_id: 'req_01', firm_id: 'FIR-001', client_id: 'cli_qb_01', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 10, active: true, created_at: '2024-03-01T10:00:00Z' },
+  { requirement_id: 'req_02', firm_id: 'FIR-001', client_id: 'cli_qb_01', document_type: 'Sales Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2024-03-01T10:00:00Z' },
+  { requirement_id: 'req_03', firm_id: 'FIR-001', client_id: 'cli_me_02', document_type: 'Expense Bills', frequency: 'Monthly', due_day: 12, active: true, created_at: '2024-02-15T11:30:00Z' },
+  { requirement_id: 'req_04', firm_id: 'FIR-001', client_id: 'cli_bp_03', document_type: 'Payroll Register', frequency: 'Monthly', due_day: 7, active: true, created_at: '2024-01-20T09:15:00Z' },
+  { requirement_id: 'req_05', firm_id: 'FIR-001', client_id: 'cli_sl_04', document_type: 'Sales Register', frequency: 'Monthly', due_day: 11, active: true, created_at: '2024-04-10T14:20:00Z' },
+  { requirement_id: 'req_06', firm_id: 'FIR-001', client_id: 'cli_gc_05', document_type: 'TDS Return', frequency: 'Monthly', due_day: 15, active: true, created_at: '2024-05-02T16:00:00Z' },
+  { requirement_id: 'req_07', firm_id: 'FIR-001', client_id: 'cli_gl_06', document_type: 'Purchase Register', frequency: 'Monthly', due_day: 10, active: true, created_at: '2024-02-01T10:00:00Z' },
+  { requirement_id: 'req_08', firm_id: 'FIR-001', client_id: 'cli_nx_07', document_type: 'Bank Statement', frequency: 'Monthly', due_day: 10, active: true, created_at: '2024-03-12T11:00:00Z' },
 ];
 
 // 4. PERIOD_REQUIREMENTS
 export const mockPeriodRequirements: PeriodRequirement[] = [
-  { period_requirement_id: 'preq_01', firm_id: 'firm_va_001', client_id: 'cli_qb_01', document_type: 'Bank Statement', period: 'Aug 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-09-01T00:00:00Z' },
-  { period_requirement_id: 'preq_02', firm_id: 'firm_va_001', client_id: 'cli_me_02', document_type: 'Expense Bills', period: 'Aug 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-09-01T00:00:00Z' },
-  { period_requirement_id: 'preq_03', firm_id: 'firm_va_001', client_id: 'cli_bp_03', document_type: 'Payroll Register', period: 'Jul 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-08-01T00:00:00Z' },
-  { period_requirement_id: 'preq_04', firm_id: 'firm_va_001', client_id: 'cli_sl_04', document_type: 'Sales Register', period: 'Aug 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-09-01T00:00:00Z' },
-  { period_requirement_id: 'preq_05', firm_id: 'firm_va_001', client_id: 'cli_gc_05', document_type: 'TDS Return', period: 'Aug 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-09-01T00:00:00Z' },
-  { period_requirement_id: 'preq_06', firm_id: 'firm_va_001', client_id: 'cli_cs_12', document_type: 'Sales Register', period: 'Aug 2026', status: 'Not Required', reason: 'CA Approved: Client operates purely on export advance retainers with zero domestic billing this cycle.', updated_by: 'CA Karthik', updated_at: '2026-09-08T14:30:00Z' },
+  { period_requirement_id: 'preq_01', firm_id: 'FIR-001', client_id: 'cli_qb_01', document_type: 'Bank Statement', period: 'Aug 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-09-01T00:00:00Z' },
+  { period_requirement_id: 'preq_02', firm_id: 'FIR-001', client_id: 'cli_me_02', document_type: 'Expense Bills', period: 'Aug 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-09-01T00:00:00Z' },
+  { period_requirement_id: 'preq_03', firm_id: 'FIR-001', client_id: 'cli_bp_03', document_type: 'Payroll Register', period: 'Jul 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-08-01T00:00:00Z' },
+  { period_requirement_id: 'preq_04', firm_id: 'FIR-001', client_id: 'cli_sl_04', document_type: 'Sales Register', period: 'Aug 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-09-01T00:00:00Z' },
+  { period_requirement_id: 'preq_05', firm_id: 'FIR-001', client_id: 'cli_gc_05', document_type: 'TDS Return', period: 'Aug 2026', status: 'Required', updated_by: 'System Rule', updated_at: '2026-09-01T00:00:00Z' },
+  { period_requirement_id: 'preq_06', firm_id: 'FIR-001', client_id: 'cli_cs_12', document_type: 'Sales Register', period: 'Aug 2026', status: 'Not Required', reason: 'CA Approved: Client operates purely on export advance retainers with zero domestic billing this cycle.', updated_by: 'CA Karthik', updated_at: '2026-09-08T14:30:00Z' },
 ];
 
 // 5. DOCUMENTS (Exactly 8 realistic inbound items for AI Intake Inbox)
 export const mockDocuments: Document[] = [
   {
     document_id: 'doc_qb_882',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_qb_01',
     document_type: 'Bank Statement',
     period: 'Aug 2026',
@@ -292,7 +292,7 @@ export const mockDocuments: Document[] = [
   },
   {
     document_id: 'doc_me_441',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_me_02',
     document_type: 'Expense Bills',
     period: 'Aug 2026',
@@ -311,7 +311,7 @@ export const mockDocuments: Document[] = [
   },
   {
     document_id: 'doc_bp_310',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_bp_03',
     document_type: 'Payroll Register',
     period: 'Jul 2026',
@@ -330,7 +330,7 @@ export const mockDocuments: Document[] = [
   },
   {
     document_id: 'doc_gc_109',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_gc_05',
     document_type: 'TDS Return',
     period: 'Aug 2026',
@@ -349,7 +349,7 @@ export const mockDocuments: Document[] = [
   },
   {
     document_id: 'doc_nx_904',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_nx_07',
     document_type: 'Sales Register',
     period: 'Aug 2026',
@@ -368,7 +368,7 @@ export const mockDocuments: Document[] = [
   },
   {
     document_id: 'doc_gl_552',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_gl_06',
     document_type: 'Purchase Register',
     period: 'Aug 2026',
@@ -387,7 +387,7 @@ export const mockDocuments: Document[] = [
   },
   {
     document_id: 'doc_aa_612',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_aa_10',
     document_type: 'Purchase Register',
     period: 'Aug 2026',
@@ -406,7 +406,7 @@ export const mockDocuments: Document[] = [
   },
   {
     document_id: 'doc_hv_204',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_hv_08',
     document_type: 'Customs Duty Challan',
     period: 'Aug 2026',
@@ -429,7 +429,7 @@ export const mockDocuments: Document[] = [
 export const mockAlerts: Alert[] = [
   {
     alert_id: 'alt_01',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_qb_01',
     document_type: 'Bank Statement',
     period: 'Aug 2026',
@@ -442,7 +442,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     alert_id: 'alt_02',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_me_02',
     document_type: 'Expense Bills',
     period: 'Aug 2026',
@@ -455,7 +455,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     alert_id: 'alt_03',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_sl_04',
     document_type: 'Sales Register',
     period: 'Aug 2026',
@@ -468,7 +468,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     alert_id: 'alt_04',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_gc_05',
     document_type: 'TDS Return',
     period: 'Aug 2026',
@@ -481,7 +481,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     alert_id: 'alt_05',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_un_09',
     document_type: 'Expense Bills',
     period: 'Aug 2026',
@@ -494,7 +494,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     alert_id: 'alt_06',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_aa_10',
     document_type: 'Purchase Register',
     period: 'Aug 2026',
@@ -507,7 +507,7 @@ export const mockAlerts: Alert[] = [
   },
   {
     alert_id: 'alt_07',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_sh_11',
     document_type: 'Payroll Summary',
     period: 'Aug 2026',
@@ -524,7 +524,7 @@ export const mockAlerts: Alert[] = [
 export const mockReminders: Reminder[] = [
   {
     reminder_id: 'rem_01',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_sl_04',
     document_type: 'Sales Register',
     period: 'Aug 2026',
@@ -544,7 +544,7 @@ Partner, Vertex & Associates`,
   },
   {
     reminder_id: 'rem_02',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_gc_05',
     document_type: 'TDS Return',
     period: 'Aug 2026',
@@ -564,7 +564,7 @@ Vertex & Associates`,
   },
   {
     reminder_id: 'rem_03',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_qb_01',
     document_type: 'Bank Statement',
     period: 'Aug 2026',
@@ -576,7 +576,7 @@ Vertex & Associates`,
   },
   {
     reminder_id: 'rem_04',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_bp_03',
     document_type: 'Payroll Register',
     period: 'Jul 2026',
@@ -589,7 +589,7 @@ Vertex & Associates`,
   },
   {
     reminder_id: 'rem_05',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     client_id: 'cli_me_02',
     document_type: 'Expense Bills',
     period: 'Aug 2026',
@@ -605,7 +605,7 @@ Vertex & Associates`,
 export const mockAuditLogs: AuditLog[] = [
   {
     log_id: 'aud_101',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     timestamp: '2026-09-11T17:12:30Z',
     user: 'AI Intake Engine',
     action: 'DOCUMENT_CLASSIFIED',
@@ -617,7 +617,7 @@ export const mockAuditLogs: AuditLog[] = [
   },
   {
     log_id: 'aud_102',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     timestamp: '2026-09-11T17:03:10Z',
     user: 'AI Validation Engine',
     action: 'FLAGGED_FOR_REVIEW',
@@ -629,7 +629,7 @@ export const mockAuditLogs: AuditLog[] = [
   },
   {
     log_id: 'aud_103',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     timestamp: '2026-09-11T10:00:00Z',
     user: 'AI Copilot Drafter',
     action: 'REMINDER_DRAFT_CREATED',
@@ -640,7 +640,7 @@ export const mockAuditLogs: AuditLog[] = [
   },
   {
     log_id: 'aud_104',
-    firm_id: 'firm_va_001',
+    firm_id: 'FIR-001',
     timestamp: '2026-09-08T14:30:00Z',
     user: 'CA Karthik',
     action: 'PERIOD_REQUIREMENT_OVERRIDDEN',
@@ -654,14 +654,14 @@ export const mockAuditLogs: AuditLog[] = [
 
 // 9. SETTINGS
 export const mockSettings: Setting[] = [
-  { setting_id: 'st_01', firm_id: 'firm_va_001', category: 'AI', setting_key: 'AUTO_PROCESS_CONFIDENCE', setting_value: '0.95', description: 'Threshold above which documents are automatically marked Valid without mandatory human triage.', active: true, updated_at: '2026-08-01T00:00:00Z' },
-  { setting_id: 'st_02', firm_id: 'firm_va_001', category: 'AI', setting_key: 'REVIEW_CONFIDENCE', setting_value: '0.80', description: 'Threshold below which documents require explicit partner inspection.', active: true, updated_at: '2026-08-01T00:00:00Z' },
-  { setting_id: 'st_03', firm_id: 'firm_va_001', category: 'Notifications', setting_key: 'MIN_DAYS_BETWEEN_REMINDERS', setting_value: '3', description: 'Minimum cooling period between successive client reminder dispatches.', active: true, updated_at: '2026-08-01T00:00:00Z' },
-  { setting_id: 'st_04', firm_id: 'firm_va_001', category: 'Notifications', setting_key: 'MAX_REMINDERS_PER_PERIOD', setting_value: '2', description: 'Maximum automated nudge cycles allowed before escalating to direct CA phone call.', active: true, updated_at: '2026-08-01T00:00:00Z' },
-  { setting_id: 'st_05', firm_id: 'firm_va_001', category: 'System', setting_key: 'DEFAULT_TIMEZONE', setting_value: 'Asia/Kolkata', description: 'Default legal operating timezone for Indian compliance schedules.', active: true, updated_at: '2026-08-01T00:00:00Z' },
-  { setting_id: 'st_06', firm_id: 'firm_va_001', category: 'Compliance', setting_key: 'REQUIRE_CA_APPROVAL_FOR_REMINDER', setting_value: 'TRUE', description: 'Mandates CA approval before any email or WhatsApp reminder is transmitted to client.', active: true, updated_at: '2026-08-01T00:00:00Z' },
-  { setting_id: 'st_07', firm_id: 'firm_va_001', category: 'Compliance', setting_key: 'UNKNOWN_CLIENT_REQUIRES_REVIEW', setting_value: 'TRUE', description: 'Inbound documents with unrecognized sender domains are isolated in quarantine.', active: true, updated_at: '2026-08-01T00:00:00Z' },
-  { setting_id: 'st_08', firm_id: 'firm_va_001', category: 'Compliance', setting_key: 'NOT_REQUIRED_REQUIRES_CA_APPROVAL', setting_value: 'TRUE', description: 'Marking any statutory document "Not Required" creates an immutable audit trail entry.', active: true, updated_at: '2026-08-01T00:00:00Z' },
+  { setting_id: 'st_01', firm_id: 'FIR-001', category: 'AI', setting_key: 'AUTO_PROCESS_CONFIDENCE', setting_value: '0.95', description: 'Threshold above which documents are automatically marked Valid without mandatory human triage.', active: true, updated_at: '2026-08-01T00:00:00Z' },
+  { setting_id: 'st_02', firm_id: 'FIR-001', category: 'AI', setting_key: 'REVIEW_CONFIDENCE', setting_value: '0.80', description: 'Threshold below which documents require explicit partner inspection.', active: true, updated_at: '2026-08-01T00:00:00Z' },
+  { setting_id: 'st_03', firm_id: 'FIR-001', category: 'Notifications', setting_key: 'MIN_DAYS_BETWEEN_REMINDERS', setting_value: '3', description: 'Minimum cooling period between successive client reminder dispatches.', active: true, updated_at: '2026-08-01T00:00:00Z' },
+  { setting_id: 'st_04', firm_id: 'FIR-001', category: 'Notifications', setting_key: 'MAX_REMINDERS_PER_PERIOD', setting_value: '2', description: 'Maximum automated nudge cycles allowed before escalating to direct CA phone call.', active: true, updated_at: '2026-08-01T00:00:00Z' },
+  { setting_id: 'st_05', firm_id: 'FIR-001', category: 'System', setting_key: 'DEFAULT_TIMEZONE', setting_value: 'Asia/Kolkata', description: 'Default legal operating timezone for Indian compliance schedules.', active: true, updated_at: '2026-08-01T00:00:00Z' },
+  { setting_id: 'st_06', firm_id: 'FIR-001', category: 'Compliance', setting_key: 'REQUIRE_CA_APPROVAL_FOR_REMINDER', setting_value: 'TRUE', description: 'Mandates CA approval before any email or WhatsApp reminder is transmitted to client.', active: true, updated_at: '2026-08-01T00:00:00Z' },
+  { setting_id: 'st_07', firm_id: 'FIR-001', category: 'Compliance', setting_key: 'UNKNOWN_CLIENT_REQUIRES_REVIEW', setting_value: 'TRUE', description: 'Inbound documents with unrecognized sender domains are isolated in quarantine.', active: true, updated_at: '2026-08-01T00:00:00Z' },
+  { setting_id: 'st_08', firm_id: 'FIR-001', category: 'Compliance', setting_key: 'NOT_REQUIRED_REQUIRES_CA_APPROVAL', setting_value: 'TRUE', description: 'Marking any statutory document "Not Required" creates an immutable audit trail entry.', active: true, updated_at: '2026-08-01T00:00:00Z' },
 ];
 
 // DERIVED UI DATA
