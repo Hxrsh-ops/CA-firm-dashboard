@@ -163,6 +163,13 @@ class ApiClient {
   async getSettings() {
     return this.request<any[]>('/settings');
   }
+
+  async updateSetting(key: string, payload: { setting_value: string; updated_by?: string }) {
+    return this.request<any>(`/settings/${encodeURIComponent(key)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

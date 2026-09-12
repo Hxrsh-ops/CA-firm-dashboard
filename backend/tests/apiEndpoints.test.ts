@@ -1,14 +1,16 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/app.js';
 import { resetUnitOfWorkForTesting, MemoryUnitOfWork, getInitialSeedData } from '../src/repositories/index.js';
 import { env } from '../src/config/env.js';
+import { makeClient } from '../src/integrations/makeClient.js';
 
 describe('CA Copilot API v1 HTTP Endpoints & Webhooks', () => {
   const FIRM_ID = 'FIR-001';
 
   beforeEach(() => {
     resetUnitOfWorkForTesting(new MemoryUnitOfWork(getInitialSeedData()));
+    vi.spyOn(makeClient, 'dispatchApprovedReminder').mockResolvedValue({ success: true });
   });
 
   describe('Health Check', () => {

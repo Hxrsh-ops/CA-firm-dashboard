@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Search, Plus, Phone, Mail, ChevronRight } from 'lucide-react';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 import { ClientAvatar } from '../common/ClientAvatar';
 
 export const ClientsView: React.FC = () => {
+  useDataSync();
   const [searchTerm, setSearchTerm] = useState('');
   const clients = dataService.getClients();
 
@@ -23,7 +24,7 @@ export const ClientsView: React.FC = () => {
             Client Directory
           </h1>
           <p className="text-xs text-[#7A7169] mt-0.5">
-            18 Managed Business Entities under Vertex & Associates compliance roster
+            {clients.length} Managed Business Entities under Vertex & Associates compliance roster
           </p>
         </div>
         <div className="flex items-center gap-2">

@@ -17,8 +17,8 @@ export const AskCopilotBar: React.FC<AskCopilotBarProps> = ({ onAsk }) => {
 
   const suggestions = [
     'What documents are missing for August 2026?',
-    'Draft bank statement reminder for Quantum Bridge',
-    'Explain GSTIN flag on Meridian Engineering',
+    'Draft client reminder for Acme Global Solutions',
+    'Review active open alerts and exceptions',
     'Show GSTR-1 readiness overview',
   ];
 

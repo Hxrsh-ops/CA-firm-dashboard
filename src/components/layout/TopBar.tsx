@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Bell, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { dataService } from '../../services/dataService';
 
 interface TopBarProps {
   onOpenSearch: () => void;
@@ -13,6 +14,8 @@ export const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const openAlerts = dataService.getAlerts('Open');
+  const liveDocs = dataService.getDocuments();
 
   return (
     <header className="h-16 bg-[#FAF8F5] border-b border-[#EAE6DF] px-8 flex items-center justify-between sticky top-0 z-20 select-none">
@@ -57,49 +60,40 @@ export const TopBar: React.FC<TopBarProps> = ({
                   Intake Notifications
                 </span>
                 <span className="text-[10px] bg-[#EFF6FF] text-[#1D4ED8] font-medium px-2 py-0.5 rounded-full">
-                  {notificationCount} new
+                  {openAlerts.length} active
                 </span>
               </div>
               <div className="max-h-64 overflow-y-auto divide-y divide-[#F5F2EC]">
-                <div className="p-3 hover:bg-[#FAF9F6] transition-colors cursor-pointer">
-                  <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#DC2626] mt-1 shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-[#2B231F]">
-                        Quantum Bridge Bank Statement Missing
-                      </p>
-                      <p className="text-[11px] text-[#8C827A] mt-0.5">
-                        August return filing deadline in 48 hours
-                      </p>
+                {openAlerts.map((alert) => (
+                  <div key={alert.alert_id} className="p-3 hover:bg-[#FAF9F6] transition-colors cursor-pointer">
+                    <div className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#DC2626] mt-1 shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium text-[#2B231F]">
+                          {alert.client_id}: {alert.document_type}
+                        </p>
+                        <p className="text-[11px] text-[#8C827A] mt-0.5 line-clamp-1">
+                          {alert.message}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="p-3 hover:bg-[#FAF9F6] transition-colors cursor-pointer">
-                  <div className="flex items-start gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#F59E0B] mt-1 shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-[#2B231F]">
-                        Meridian Engineering Expense Bills Flagged
-                      </p>
-                      <p className="text-[11px] text-[#8C827A] mt-0.5">
-                        AI confidence 74% — GSTIN check required
-                      </p>
+                ))}
+                {liveDocs.slice(0, 2).map((doc) => (
+                  <div key={doc.document_id} className="p-3 hover:bg-[#FAF9F6] transition-colors cursor-pointer">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A] shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-medium text-[#2B231F]">
+                          {doc.document_type} Validated
+                        </p>
+                        <p className="text-[11px] text-[#8C827A] mt-0.5">
+                          {doc.filename} ({doc.period})
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="p-3 hover:bg-[#FAF9F6] transition-colors cursor-pointer">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-medium text-[#2B231F]">
-                        BluePeak Payroll Reconciled
-                      </p>
-                      <p className="text-[11px] text-[#8C827A] mt-0.5">
-                        48 employee entries verified
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
               <div className="p-2 border-t border-[#EAE6DF] text-center">
                 <button

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { MemoryUnitOfWork, getInitialSeedData } from '../src/repositories/memoryRepo.js';
 import { ClientMatchingService } from '../src/services/clientMatchingService.js';
 import { DocumentService } from '../src/services/documentService.js';
@@ -7,6 +7,7 @@ import { ReminderService } from '../src/services/reminderService.js';
 import { AlertService } from '../src/services/alertService.js';
 import { SettingsService } from '../src/services/settingsService.js';
 import { AuditService } from '../src/services/auditService.js';
+import { makeClient } from '../src/integrations/makeClient.js';
 
 describe('CA Copilot Core Business Rules & Services', () => {
   let uow: MemoryUnitOfWork;
@@ -14,6 +15,7 @@ describe('CA Copilot Core Business Rules & Services', () => {
 
   beforeEach(() => {
     uow = new MemoryUnitOfWork(getInitialSeedData());
+    vi.spyOn(makeClient, 'dispatchApprovedReminder').mockResolvedValue({ success: true });
   });
 
   describe('1. Client Matching', () => {

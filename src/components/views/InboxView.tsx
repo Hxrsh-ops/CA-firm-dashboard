@@ -4,10 +4,11 @@ import { InboxFilters } from '../inbox/InboxFilters';
 import { InboxTable } from '../inbox/InboxTable';
 import { IntakeDetailDrawer } from '../inbox/IntakeDetailDrawer';
 import { EmptyInboxState } from '../inbox/EmptyInboxState';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 import type { IntakeItem, IntakeTabFilter } from '../../types';
 
 export const InboxView: React.FC = () => {
+  useDataSync();
   const [activeTab, setActiveTab] = useState<IntakeTabFilter>('all');
   const [search, setSearch] = useState('');
   const [clientId, setClientId] = useState('all');

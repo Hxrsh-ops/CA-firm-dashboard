@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { FileText, Download, Eye } from 'lucide-react';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 import { StatusBadge } from '../common/StatusBadge';
 
 export const DocumentsView: React.FC = () => {
+  useDataSync();
   const [selectedType, setSelectedType] = useState('All');
   const documents = dataService.getDocuments();
 

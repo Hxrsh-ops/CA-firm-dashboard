@@ -14,9 +14,10 @@ import {
   Cell,
 } from 'recharts';
 import { ChevronDown } from 'lucide-react';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 
 export const AnalyticsSection: React.FC = () => {
+  useDataSync();
   const [intakeRange, setIntakeRange] = useState('Last 14 days');
   const [pendingRange, setPendingRange] = useState('Last 14 days');
   const [complianceRange, setComplianceRange] = useState('This Month');
@@ -24,6 +25,10 @@ export const AnalyticsSection: React.FC = () => {
   const intakeData = dataService.getIntakeTrend(14);
   const pendingData = dataService.getPendingTrend(14);
   const complianceData = dataService.getComplianceDistribution();
+
+  const totalCompl = complianceData.reduce((acc, c) => acc + c.value, 0);
+  const onTrackCompl = complianceData.find((c) => c.name === 'On Track')?.value || 0;
+  const onTrackPct = totalCompl > 0 ? Math.round((onTrackCompl / totalCompl) * 100) : 100;
 
   // Custom Tooltip for Charts
   const CustomBarTooltip = ({ active, payload, label }: any) => {
@@ -213,7 +218,7 @@ export const AnalyticsSection: React.FC = () => {
             {/* Center Label */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-[20px] font-bold text-[#2B231F] leading-none font-display">
-                76%
+                {onTrackPct}%
               </span>
               <span className="text-[10px] text-[#8C827A] font-medium mt-0.5">
                 On Track

@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, Save } from 'lucide-react';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 import type { Setting } from '../../types';
 
 export const SettingsView: React.FC = () => {
+  useDataSync();
   const [settingsList, setSettingsList] = useState<Setting[]>(dataService.getSettings());
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const liveSettings = dataService.getSettings();
+    if (liveSettings.length > 0) {
+      setSettingsList(liveSettings);
+    }
+  }, [dataService.getSettings()]);
 
   const handleToggle = (settingId: string) => {
     setSettingsList((prev) =>
@@ -19,9 +28,17 @@ export const SettingsView: React.FC = () => {
     );
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      for (const s of settingsList) {
+        await dataService.updateSetting(s.setting_key, s.setting_value, 'CA Partner');
+      }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -39,12 +56,18 @@ export const SettingsView: React.FC = () => {
 
         <button
           onClick={handleSave}
-          className="px-4 py-2 rounded-xl bg-[#3D2D22] hover:bg-[#261B14] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+          disabled={isSaving}
+          className="px-4 py-2 rounded-xl bg-[#3D2D22] disabled:bg-[#8C827A] hover:bg-[#261B14] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
         >
           {saved ? (
             <>
               <CheckCircle2 className="w-3.5 h-3.5 text-[#86EFAC]" />
               <span>Saved Successfully</span>
+            </>
+          ) : isSaving ? (
+            <>
+              <Save className="w-3.5 h-3.5 animate-spin" />
+              <span>Saving...</span>
             </>
           ) : (
             <>

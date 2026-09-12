@@ -1,8 +1,9 @@
 import React from 'react';
 import { Users, FileText, AlertTriangle, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 
 export const SecondaryMetrics: React.FC = () => {
+  useDataSync();
   const metrics = dataService.getSecondaryMetrics();
 
   const items = [

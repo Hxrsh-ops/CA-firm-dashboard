@@ -15,16 +15,25 @@ interface Message {
   actions?: string[];
 }
 
+import { dataService } from '../../services/dataService';
+
 export const AskCopilotDrawer: React.FC<AskCopilotDrawerProps> = ({
   isOpen,
   initialQuery,
   onClose,
 }) => {
+  const firm = dataService.getFirm();
+  const clients = dataService.getClients();
+  const documents = dataService.getDocuments();
+  const alerts = dataService.getAlerts();
+  const reminders = dataService.getReminders();
+  const complianceMatrix = dataService.getComplianceMatrix();
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'm1',
       sender: 'copilot',
-      text: 'Good day, Partner Arun. I am your CA Copilot assistant. I can inspect client document queues, summarize missing items for August 2026, or draft client reminders for your review.',
+      text: `Good day, Partner. I am your CA Copilot assistant for ${firm.legal_name}. I can inspect client document queues, summarize missing items for August 2026, or draft client reminders for your review.`,
       timestamp: '11:40 AM',
     },
   ]);
@@ -57,34 +66,42 @@ export const AskCopilotDrawer: React.FC<AskCopilotDrawerProps> = ({
       let actions: string[] | undefined = undefined;
       const lower = text.toLowerCase();
 
+      const missingItems = complianceMatrix.filter((m) => m.status === 'Missing');
+      const openAlerts = alerts.filter((a) => a.status === 'Open');
+
       if (lower.includes('missing') || lower.includes('august')) {
-        botReply = `Based on deterministic requirement rules for **August 2026**, 2 clients have statutory documents pending:
-1. **Quantum Bridge Technologies** — ICICI Escrow Bank Statement (High Priority, Due 12 Sep 2026).
-2. **SwiftLogix Solutions** — Sales Register (Medium Priority, Due 15 Sep 2026).
-
-Draft reminders have been staged in your queue. Would you like to review and approve them?`;
-        actions = ['Review Quantum Bridge Reminder', 'Review SwiftLogix Reminder'];
-      } else if (lower.includes('meridian') || lower.includes('gstin')) {
-        botReply = `**Meridian Engineering Solutions — Expense Bills (Aug 2026)**:
-- AI confidence: **74%**
-- Flag: Vendor GSTIN mismatch on 2 invoices from *Precision Dies & Moulds* (Invoice totals: ₹4,82,000).
-- Deterministic Rule: Master GST portal record shows active GSTIN suffix ending in '1Z4' while invoice reads '1Z9'.
-- Recommended CA Action: Confirm whether supplier underwent GST registration amendment before claiming ITC.`;
-        actions = ['Approve with CA Exception Note', 'Send Inquiry to Client'];
+        if (missingItems.length > 0) {
+          const listText = missingItems
+            .slice(0, 3)
+            .map((m, i) => `${i + 1}. **${m.client_name}** — ${m.document_type} (Due ${m.due_date})`)
+            .join('\n');
+          botReply = `Based on deterministic requirement rules for **August 2026**, statutory documents are pending for:\n${listText}\n\nDraft reminders are staged in your queue. Would you like to review and approve them?`;
+          actions = missingItems.slice(0, 2).map((m) => `Review ${m.client_name} Reminder`);
+        } else {
+          botReply = `All statutory documents for **August 2026** have been received and verified for active clients under **${firm.legal_name}**.`;
+        }
+      } else if (lower.includes('alert') || lower.includes('exception')) {
+        if (openAlerts.length > 0) {
+          const listText = openAlerts
+            .slice(0, 3)
+            .map((a, i) => `${i + 1}. **${a.client_id}** (${a.document_type}): ${a.message}`)
+            .join('\n');
+          botReply = `There are **${openAlerts.length} active exceptions** flagged by deterministic compliance rules:\n${listText}\n\nEach requires partner review before proceeding.`;
+          actions = ['View All Alerts'];
+        } else {
+          botReply = 'There are no active exceptions. All inbound documents conform to master validation rules.';
+        }
       } else if (lower.includes('draft') || lower.includes('reminder')) {
-        botReply = `I have drafted a reminder for **Quantum Bridge Technologies**:
-
-> *Subject: Pending Bank Statement for August 2026 — Vertex & Associates*
-> 
-> *Dear Quantum Bridge Accounts Team,*
-> *Kindly share the signed PDF of the ICICI Escrow Account statement for August 2026. The statutory GST reconciliation deadline is 12 September 2026.*
-
-*Note: Per firm policy SETTING #06, CA Arun partner approval is required before dispatch.*`;
-        actions = ['One-Click CA Approve & Send', 'Edit Draft'];
+        const pendingRem = reminders.find((r) => r.status === 'Pending Approval') || reminders[0];
+        if (pendingRem) {
+          const client = clients.find((c) => c.client_id === pendingRem.client_id);
+          botReply = `I have drafted a reminder for **${client?.legal_name || pendingRem.client_id}**:\n\n> *Subject: ${pendingRem.subject}*\n> \n> *Recipient: ${pendingRem.recipient_email}*\n\n*Note: Partner approval is required before dispatch.*`;
+          actions = ['Approve & Dispatch', 'View Reminders Queue'];
+        } else {
+          botReply = 'No reminder drafts currently pending partner approval.';
+        }
       } else {
-        botReply = `I have analyzed the firm compliance records. All 18 clients are active under Vertex & Associates. 24 documents for the current period have passed deterministic validation rules with >95% AI classification confidence.
-
-What specific client or document requirement would you like me to inspect?`;
+        botReply = `I have analyzed the practice records for **${firm.legal_name}**.\n\n- **${clients.length} Clients** active on the roster.\n- **${documents.length} Inbound Documents** processed.\n- **${openAlerts.length} Open Exceptions** requiring attention.\n\nWhat specific client, document requirement, or statutory filing would you like me to inspect?`;
       }
 
       const copilotMsg: Message = {

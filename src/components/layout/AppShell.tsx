@@ -6,7 +6,7 @@ import { GlobalSearchModal } from '../common/GlobalSearchModal';
 import { AskCopilotDrawer } from '../common/AskCopilotDrawer';
 import { WorkItemDetailModal } from '../common/WorkItemDetailModal';
 import type { PriorityWorkItem } from '../../types';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 import { Menu, X } from 'lucide-react';
 
 interface AppShellProps {
@@ -30,6 +30,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   onOpenCopilotWithQuery,
   children,
 }) => {
+  useDataSync();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isCopilotDrawerOpen, setIsCopilotDrawerOpen] = useState(false);

@@ -7,7 +7,7 @@ import { PriorityWorkTable } from '../dashboard/PriorityWorkTable';
 import { RecentActivity } from '../dashboard/RecentActivity';
 import { UpcomingRemindersPanel } from '../dashboard/UpcomingRemindersPanel';
 import { AskCopilotBar } from '../dashboard/AskCopilotBar';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 import type { PriorityWorkItem, RecentActivityItem } from '../../types';
 
 interface DashboardViewProps {
@@ -23,6 +23,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigateTab,
   onAskCopilot,
 }) => {
+  useDataSync();
   const attentionMetrics = dataService.getDashboardAttentionMetrics();
   const priorityWork = dataService.getPriorityWork();
   const recentActivities = dataService.getRecentActivities();

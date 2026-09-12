@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search, X, ArrowUpDown } from 'lucide-react';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 
 interface InboxFiltersProps {
   search: string;
@@ -31,6 +31,7 @@ export const InboxFilters: React.FC<InboxFiltersProps> = ({
   onResetFilters,
   hasActiveFilters,
 }) => {
+  useDataSync();
   const clients = dataService.getClients();
   const docTypes = [
     'All Document Types',

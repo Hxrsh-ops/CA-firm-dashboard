@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AlertTriangle, CheckCircle, ShieldAlert } from 'lucide-react';
-import { dataService } from '../../services/dataService';
-import type { Alert } from '../../types';
+import { dataService, useDataSync } from '../../services/dataService';
 
 export const AlertsView: React.FC = () => {
-  const [alerts, setAlerts] = useState<Alert[]>(dataService.getAlerts());
+  useDataSync();
+  const alerts = dataService.getAlerts();
 
-  const handleResolve = (alertId: string) => {
-    dataService.resolveAlert(alertId);
-    setAlerts([...dataService.getAlerts()]);
+  const handleResolve = async (alertId: string) => {
+    await dataService.resolveAlert(alertId);
   };
 
   const openAlerts = alerts.filter((a) => a.status === 'Open');

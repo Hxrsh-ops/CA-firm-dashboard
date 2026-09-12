@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { CheckCircle2, Send, Mail, ShieldCheck } from 'lucide-react';
-import { dataService } from '../../services/dataService';
+import { dataService, useDataSync } from '../../services/dataService';
 import type { Reminder } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';
 
 export const RemindersView: React.FC = () => {
-  const [reminders, setReminders] = useState<Reminder[]>(dataService.getReminders());
+  useDataSync();
+  const reminders = dataService.getReminders();
   const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(null);
 
-  const handleApprove = (id: string) => {
-    dataService.approveReminder(id, 'CA Arun');
-    setReminders([...dataService.getReminders()]);
+  const handleApprove = async (id: string) => {
+    await dataService.approveReminder(id, 'CA Partner');
     if (selectedReminder?.reminder_id === id) {
-      setSelectedReminder(null);
+      const updated = dataService.getReminders().find((r) => r.reminder_id === id);
+      setSelectedReminder(updated || null);
     }
   };
 

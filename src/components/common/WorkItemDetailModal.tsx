@@ -37,21 +37,33 @@ export const WorkItemDetailModal: React.FC<WorkItemDetailModalProps> = ({
   const [showOverrideForm, setShowOverrideForm] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
+    if (item.status === 'Needs Review' && item.context_id) {
+      await dataService.updateDocumentValidation(item.context_id, 'Valid', 'CA partner manual review approval');
+    } else if (item.status === 'Pending Approval' && item.context_id) {
+      await dataService.approveReminder(item.context_id, 'CA Partner');
+    }
     setSuccessMessage('Action approved and logged to immutable Audit Trail.');
     setTimeout(() => {
       onActionComplete?.();
       onClose();
-    }, 1200);
+    }, 1000);
   };
 
-  const handleMarkNotRequired = () => {
+  const handleMarkNotRequired = async () => {
     if (!overrideReason.trim()) return;
+    if (item.context_id) {
+      await dataService.updateDocumentValidation(
+        item.context_id,
+        'Valid',
+        `CA Decision: Marked Not Required — ${overrideReason}`
+      );
+    }
     setSuccessMessage('Statutory requirement marked "Not Required" with CA rationale.');
     setTimeout(() => {
       onActionComplete?.();
       onClose();
-    }, 1200);
+    }, 1000);
   };
 
   return (
