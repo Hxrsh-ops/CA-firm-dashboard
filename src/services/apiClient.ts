@@ -171,6 +171,27 @@ class ApiClient {
       body: JSON.stringify(payload)
     });
   }
+
+  // AI Copilot
+  async askCopilot(message: string, period = '2026-08'): Promise<{
+    answer: string;
+    intent: string;
+    source: string;
+    grounded: boolean;
+    suggestedActions: string[];
+    aiProvider: 'gemini' | 'deterministic';
+    contextSummary?: {
+      firm_id: string;
+      period: string;
+      client_count: number;
+      target_client?: string;
+    };
+  }> {
+    return this.request('/copilot/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message, period })
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

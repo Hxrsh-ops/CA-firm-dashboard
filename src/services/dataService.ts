@@ -750,6 +750,10 @@ class DataService {
     }
     return false;
   }
+
+  async askCopilot(query: string, period = '2026-08') {
+    return apiClient.askCopilot(query, period);
+  }
 }
 
 export const dataService = new DataService();

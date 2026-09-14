@@ -15,6 +15,7 @@ export interface EnvConfig {
   GOOGLE_SHEETS_SPREADSHEET_ID?: string;
   GOOGLE_SERVICE_ACCOUNT_EMAIL?: string;
   GOOGLE_PRIVATE_KEY?: string;
+  GEMINI_API_KEY?: string;
 }
 
 export const env: EnvConfig = {
@@ -29,4 +30,6 @@ export const env: EnvConfig = {
   GOOGLE_SHEETS_SPREADSHEET_ID: process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
   GOOGLE_SERVICE_ACCOUNT_EMAIL: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
   GOOGLE_PRIVATE_KEY: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
 };
+

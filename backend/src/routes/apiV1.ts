@@ -8,6 +8,7 @@ import { DashboardController } from '../controllers/dashboardController.js';
 import { InboxController } from '../controllers/inboxController.js';
 import { AuditLogController } from '../controllers/auditLogController.js';
 import { SettingsController } from '../controllers/settingsController.js';
+import { CopilotController } from '../controllers/copilotController.js';
 import webhookRoutes from './webhooks.js';
 import { firmScopingMiddleware } from '../middleware/auth.js';
 
@@ -54,7 +55,11 @@ router.get('/audit-log', AuditLogController.getAll);
 router.get('/settings', SettingsController.getAll);
 router.patch('/settings/:key', SettingsController.update);
 
-// 10. Webhooks (also mounted under /api/v1/webhooks)
+// 10. AI Copilot Chat Endpoint
+router.post('/copilot/chat', CopilotController.chat);
+
+// 11. Webhooks (also mounted under /api/v1/webhooks)
 router.use('/webhooks', webhookRoutes);
 
 export default router;
+
