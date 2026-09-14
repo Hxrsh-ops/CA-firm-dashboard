@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/app.js';
 import { resetUnitOfWorkForTesting, MemoryUnitOfWork, getInitialSeedData } from '../src/repositories/index.js';
 import { CopilotService } from '../src/services/ai/copilotService.js';
 import { AIProvider } from '../src/services/ai/aiProvider.js';
+import { GeminiProvider } from '../src/services/ai/geminiProvider.js';
 
 class MockAIProvider implements AIProvider {
   readonly name = 'gemini';
@@ -205,5 +206,69 @@ describe('CA Copilot AI Operations Assistant Backend', () => {
     expect(res.status).toBe(400);
     expect(res.body.error).toBeDefined();
     expect(res.body.error.code).toBe('INVALID_INPUT');
+  });
+
+  // 16. GeminiProvider HTTP Header and Model Verification
+  it('16. GeminiProvider sends x-goog-api-key header and uses gemini-3.5-flash endpoint', async () => {
+    let capturedUrl = '';
+    let capturedHeaders: Record<string, string> = {};
+
+    const originalFetch = globalThis.fetch;
+    // @ts-expect-error mock fetch
+    globalThis.fetch = vi.fn(async (url: string, init?: RequestInit) => {
+      capturedUrl = url;
+      capturedHeaders = (init?.headers as Record<string, string>) || {};
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          candidates: [{ content: { parts: [{ text: 'Grounded response from Gemini' }] } }]
+        })
+      };
+    });
+
+    try {
+      const provider = new GeminiProvider('test_secret_key_123');
+      expect(provider.isConfigured()).toBe(true);
+      const text = await provider.generateResponse('Hello Gemini');
+      expect(text).toBe('Grounded response from Gemini');
+      expect(capturedUrl).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent');
+      expect(capturedUrl).not.toContain('key=');
+      expect(capturedHeaders['x-goog-api-key']).toBe('test_secret_key_123');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  // 17. GeminiProvider handles HTTP error status code cleanly
+  it('17. GeminiProvider gracefully returns null on HTTP error (e.g. 404)', async () => {
+    const originalFetch = globalThis.fetch;
+    // @ts-expect-error mock fetch
+    globalThis.fetch = vi.fn(async () => {
+      return {
+        ok: false,
+        status: 404,
+        json: async () => ({ error: { message: 'Model not found' } })
+      };
+    });
+
+    try {
+      const provider = new GeminiProvider('test_secret_key');
+      const text = await provider.generateResponse('Hello Gemini');
+      expect(text).toBeNull();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  // 18. GeminiProvider returns null when unconfigured
+  it('18. GeminiProvider is unconfigured when API key is missing or empty', async () => {
+    const providerEmpty = new GeminiProvider('');
+    expect(providerEmpty.isConfigured()).toBe(false);
+    expect(await providerEmpty.generateResponse('test')).toBeNull();
+
+    const providerUndefined = new GeminiProvider(undefined);
+    expect(providerUndefined.isConfigured()).toBe(false);
+    expect(await providerUndefined.generateResponse('test')).toBeNull();
   });
 });

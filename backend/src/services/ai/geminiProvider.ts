@@ -3,10 +3,11 @@ import { AIProvider } from './aiProvider.js';
 export class GeminiProvider implements AIProvider {
   readonly name = 'gemini';
   private apiKey?: string;
-  private modelName = 'gemini-2.5-flash';
+  private modelName: string;
 
-  constructor(apiKey?: string) {
+  constructor(apiKey?: string, modelName = 'gemini-3.5-flash') {
     this.apiKey = apiKey && apiKey.trim().length > 0 ? apiKey.trim() : undefined;
+    this.modelName = modelName;
   }
 
   isConfigured(): boolean {
@@ -18,7 +19,7 @@ export class GeminiProvider implements AIProvider {
       return null;
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.modelName}:generateContent?key=${this.apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.modelName}:generateContent`;
     
     const body: Record<string, unknown> = {
       contents: [
@@ -47,7 +48,8 @@ export class GeminiProvider implements AIProvider {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-goog-api-key': this.apiKey
         },
         body: JSON.stringify(body),
         signal: controller.signal
