@@ -3,6 +3,7 @@ import request from 'supertest';
 import { app } from '../src/app.js';
 import { resetUnitOfWorkForTesting, MemoryUnitOfWork, getInitialSeedData } from '../src/repositories/index.js';
 import { CopilotService } from '../src/services/ai/copilotService.js';
+import { CopilotIntentService } from '../src/services/ai/copilotIntentService.js';
 import { AIProvider } from '../src/services/ai/aiProvider.js';
 import { GeminiProvider } from '../src/services/ai/geminiProvider.js';
 
@@ -275,5 +276,48 @@ describe('CA Copilot AI Operations Assistant Backend', () => {
     const providerUndefined = new GeminiProvider(undefined);
     expect(providerUndefined.isConfigured()).toBe(false);
     expect(await providerUndefined.generateResponse('test')).toBeNull();
+  });
+
+  // 19. Pure greetings classified as GREETING
+  it('19. pure greetings (hi, hello, good morning, thanks) are classified as GREETING', async () => {
+    const p1 = CopilotIntentService.parse('hi', []);
+    expect(p1.intent).toBe('GREETING');
+
+    const p2 = CopilotIntentService.parse('hello', []);
+    expect(p2.intent).toBe('GREETING');
+
+    const p3 = CopilotIntentService.parse('good morning', []);
+    expect(p3.intent).toBe('GREETING');
+
+    const p4 = CopilotIntentService.parse('thanks', []);
+    expect(p4.intent).toBe('GREETING');
+  });
+
+  // 20. Operational queries with greeting prefix are NOT classified as GREETING
+  it('20. operational queries containing greeting words are NOT classified as GREETING', async () => {
+    const p1 = CopilotIntentService.parse('hi, why is Quantum Bridge only 60% compliant?', []);
+    expect(p1.intent).toBe('GET_CLIENT_COMPLIANCE');
+    expect(p1.intent).not.toBe('GREETING');
+
+    const p2 = CopilotIntentService.parse('thanks, which clients are missing bank statements?', []);
+    expect(p2.intent).toBe('GET_MISSING_DOCUMENTS');
+    expect(p2.intent).not.toBe('GREETING');
+
+    const p3 = CopilotIntentService.parse('good morning, what needs my attention today?', []);
+    expect(p3.intent).toBe('GET_ATTENTION_ITEMS');
+    expect(p3.intent).not.toBe('GREETING');
+  });
+
+  // 21. Greetings return clean conversational response and bypass Gemini
+  it('21. greeting queries bypass GeminiProvider and return clean deterministic conversational greeting', async () => {
+    mockAi.lastPrompt = undefined;
+    const res = await copilotServiceWithAi.processQuery('FIR-001', 'hi');
+
+    expect(res.intent).toBe('GREETING');
+    expect(res.aiProvider).toBe('deterministic');
+    expect(res.answer).toContain('Good day, Partner.');
+    expect(res.answer).toContain('How can I help you with practice operations today?');
+    // Verify GeminiProvider was NOT called
+    expect(mockAi.lastPrompt).toBeUndefined();
   });
 });

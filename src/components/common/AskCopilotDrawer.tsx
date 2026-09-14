@@ -30,7 +30,7 @@ export const AskCopilotDrawer: React.FC<AskCopilotDrawerProps> = ({
     {
       id: 'm1',
       sender: 'copilot',
-      text: `Good day, Partner. I am your CA Copilot operations assistant for ${firm.legal_name}.\n\nI answer queries directly against authoritative practice records—missing documents, compliance statuses, partner review items, and reminder drafts.`,
+      text: `Good day, Partner. How can I assist you with ${firm.legal_name} practice operations today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       grounded: true,
       aiProvider: 'deterministic',

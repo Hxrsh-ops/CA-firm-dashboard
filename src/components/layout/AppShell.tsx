@@ -17,6 +17,8 @@ interface AppShellProps {
   copilotQuery: string | null;
   onCloseCopilot: () => void;
   onOpenCopilotWithQuery: (query: string) => void;
+  isCopilotOpen?: boolean;
+  onOpenCopilot?: () => void;
   children: React.ReactNode;
 }
 
@@ -28,20 +30,24 @@ export const AppShell: React.FC<AppShellProps> = ({
   copilotQuery,
   onCloseCopilot,
   onOpenCopilotWithQuery,
+  isCopilotOpen = false,
+  onOpenCopilot,
   children,
 }) => {
   const { connectionStatus, refresh } = useDataSync();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [isCopilotDrawerOpen, setIsCopilotDrawerOpen] = useState(false);
+  const [localCopilotOpen, setLocalCopilotOpen] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+
+  const isDrawerOpen = isCopilotOpen || localCopilotOpen || !!copilotQuery;
 
   const handleOpenSearch = () => setIsSearchOpen(true);
   const handleCloseSearch = () => setIsSearchOpen(false);
 
   const handleAskCopilotFromSearch = (query: string) => {
     onOpenCopilotWithQuery(query);
-    setIsCopilotDrawerOpen(true);
+    setLocalCopilotOpen(true);
   };
 
   const handleRetryConnection = async () => {
@@ -135,7 +141,10 @@ export const AppShell: React.FC<AppShellProps> = ({
         {/* Desktop TopBar */}
         <TopBar
           onOpenSearch={handleOpenSearch}
-          onOpenCopilot={() => setIsCopilotDrawerOpen(true)}
+          onOpenCopilot={() => {
+            setLocalCopilotOpen(true);
+            onOpenCopilot?.();
+          }}
           notificationCount={inboxSummary.needs_review + alertsCount}
         />
 
@@ -154,10 +163,10 @@ export const AppShell: React.FC<AppShellProps> = ({
 
       {/* AI Copilot Side Drawer */}
       <AskCopilotDrawer
-        isOpen={isCopilotDrawerOpen || !!copilotQuery}
+        isOpen={isDrawerOpen}
         initialQuery={copilotQuery || undefined}
         onClose={() => {
-          setIsCopilotDrawerOpen(false);
+          setLocalCopilotOpen(false);
           onCloseCopilot();
         }}
       />

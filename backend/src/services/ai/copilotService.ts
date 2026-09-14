@@ -47,6 +47,23 @@ export class CopilotService {
       };
     }
 
+    // Fast-path: Check for pure greetings before expensive authoritative data retrieval & LLM synthesis
+    const preliminaryParsed = CopilotIntentService.parse(userMessage, []);
+    if (preliminaryParsed.intent === 'GREETING') {
+      return {
+        answer: 'Good day, Partner. How can I help you with practice operations today?',
+        intent: 'GREETING',
+        source: 'CA Copilot Assistant',
+        grounded: true,
+        suggestedActions: [
+          'What needs my attention today?',
+          'Which clients are missing documents?',
+          'Why is Quantum Bridge only 60% compliant?'
+        ],
+        aiProvider: 'deterministic'
+      };
+    }
+
     // 1. Fetch Authoritative Data from Unit of Work in Parallel
     const defaultFirm: Firm = {
       firm_id,

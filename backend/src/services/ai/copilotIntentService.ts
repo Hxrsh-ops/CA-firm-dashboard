@@ -11,6 +11,7 @@ export type CopilotIntentType =
   | 'GET_OPEN_ALERTS'
   | 'DRAFT_REMINDER'
   | 'GET_COMPLIANCE_SUMMARY'
+  | 'GREETING'
   | 'GENERAL_COPILOT_QUERY';
 
 export interface ParsedCopilotQuery {
@@ -109,6 +110,10 @@ export class CopilotIntentService {
     // 4. Classify Intent
     let intent: CopilotIntentType = 'GENERAL_COPILOT_QUERY';
 
+    // Check for pure greetings / acknowledgements (e.g. "hi", "hello", "good morning", "thanks", "thank you")
+    const normalizedGreeting = lower.replace(/^[!.,?\s]+|[!.,?\s]+$/g, '');
+    const isPureGreeting = /^(?:hi|hello|hey|hiya|howdy|good\s+(?:morning|afternoon|evening|day)|thanks|thank\s+you|thx|cheers)$/i.test(normalizedGreeting);
+
     if (
       lower.includes('attention') ||
       lower.includes('today') ||
@@ -178,6 +183,8 @@ export class CopilotIntentService {
       } else {
         intent = 'GET_COMPLIANCE_SUMMARY';
       }
+    } else if (isPureGreeting) {
+      intent = 'GREETING';
     }
 
     return {

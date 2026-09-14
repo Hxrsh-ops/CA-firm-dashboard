@@ -392,6 +392,18 @@ export class DeterministicCopilotFormatter {
         };
       }
 
+      case 'GREETING': {
+        return {
+          answer: `Good day, Partner. How can I assist you with practice operations today?`,
+          source: `CA Copilot Assistant for ${firmName}.`,
+          suggestedActions: [
+            'What needs my attention today?',
+            'Which clients are missing documents?',
+            'Why is Quantum Bridge only 60% compliant?'
+          ]
+        };
+      }
+
       case 'GENERAL_COPILOT_QUERY':
       default: {
         const lines = [

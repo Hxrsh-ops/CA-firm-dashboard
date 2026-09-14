@@ -15,6 +15,7 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavigationTab>('dashboard');
   const [selectedWorkItem, setSelectedWorkItem] = useState<PriorityWorkItem | null>(null);
   const [copilotQuery, setCopilotQuery] = useState<string | null>(null);
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
 
   const renderActiveView = () => {
     switch (activeTab) {
@@ -23,7 +24,10 @@ export const App: React.FC = () => {
           <DashboardView
             onSelectWorkItem={(item) => setSelectedWorkItem(item)}
             onNavigateTab={(tab) => setActiveTab(tab)}
-            onAskCopilot={(q) => setCopilotQuery(q)}
+            onAskCopilot={(q) => {
+              setCopilotQuery(q);
+              setIsCopilotOpen(true);
+            }}
           />
         );
       case 'inbox':
@@ -43,7 +47,10 @@ export const App: React.FC = () => {
           <DashboardView
             onSelectWorkItem={(item) => setSelectedWorkItem(item)}
             onNavigateTab={(tab) => setActiveTab(tab)}
-            onAskCopilot={(q) => setCopilotQuery(q)}
+            onAskCopilot={(q) => {
+              setCopilotQuery(q);
+              setIsCopilotOpen(true);
+            }}
           />
         );
       case 'settings':
@@ -53,7 +60,10 @@ export const App: React.FC = () => {
           <DashboardView
             onSelectWorkItem={(item) => setSelectedWorkItem(item)}
             onNavigateTab={(tab) => setActiveTab(tab)}
-            onAskCopilot={(q) => setCopilotQuery(q)}
+            onAskCopilot={(q) => {
+              setCopilotQuery(q);
+              setIsCopilotOpen(true);
+            }}
           />
         );
     }
@@ -64,7 +74,7 @@ export const App: React.FC = () => {
       activeTab={activeTab}
       onSelectTab={(tab) => {
         if (tab === 'copilot') {
-          setCopilotQuery('What documents are missing for August 2026?');
+          setIsCopilotOpen(true);
         } else {
           setActiveTab(tab);
         }
@@ -72,8 +82,16 @@ export const App: React.FC = () => {
       selectedWorkItem={selectedWorkItem}
       onCloseWorkItem={() => setSelectedWorkItem(null)}
       copilotQuery={copilotQuery}
-      onCloseCopilot={() => setCopilotQuery(null)}
-      onOpenCopilotWithQuery={(q) => setCopilotQuery(q)}
+      isCopilotOpen={isCopilotOpen}
+      onCloseCopilot={() => {
+        setCopilotQuery(null);
+        setIsCopilotOpen(false);
+      }}
+      onOpenCopilot={() => setIsCopilotOpen(true)}
+      onOpenCopilotWithQuery={(q) => {
+        setCopilotQuery(q);
+        setIsCopilotOpen(true);
+      }}
     >
       {renderActiveView()}
     </AppShell>
