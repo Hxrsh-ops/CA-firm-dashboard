@@ -5,7 +5,8 @@
 
 export type DataConnectionStatus = 'live' | 'demo' | 'unavailable';
 
-const API_BASE = '/api/v1';
+const BACKEND_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const API_BASE = `${BACKEND_URL}/api/v1`;
 
 class ApiClient {
   private firmId: string = 'FIR-001';
@@ -64,7 +65,7 @@ class ApiClient {
 
   // Health
   async checkHealth(): Promise<{ status: string; mode: string }> {
-    const res = await fetch('/health');
+    const res = await fetch(`${BACKEND_URL}/health`);
     return res.json();
   }
 
