@@ -26,7 +26,7 @@ const KNOWN_DOC_TYPES: Array<{ alias: string[]; type: DocumentType }> = [
   { alias: ['bank statement', 'bank statements', 'bank stmt', 'bank stmts', 'bank'], type: 'Bank Statement' },
   { alias: ['sales register', 'sales registers', 'gstr-1', 'sales summary', 'sales'], type: 'Sales Register' },
   { alias: ['purchase register', 'purchase registers', 'gstr-2b', 'purchase summary', 'purchases'], type: 'Purchase Register' },
-  { alias: ['payroll register', 'payroll summary', 'payroll summaries', 'salary register', 'payroll'], type: 'Payroll Register' },
+  { alias: ['payroll summary', 'payroll summaries', 'salary register', 'payroll register', 'payroll'], type: 'Payroll Summary' },
   { alias: ['expense bills', 'expense vouchers', 'expenses', 'expense bill'], type: 'Expense Bills' },
   { alias: ['tds return', 'tds returns', 'tds challan', 'tds'], type: 'TDS Return' },
   { alias: ['customs duty', 'customs duty challan', 'customs'], type: 'Customs Duty Challan' }

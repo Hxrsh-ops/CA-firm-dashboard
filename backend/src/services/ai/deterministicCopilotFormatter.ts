@@ -77,7 +77,16 @@ export class DeterministicCopilotFormatter {
       case 'GET_MISSING_DOCUMENTS': {
         let missingList = ctx.matrix.filter(m => m.status === 'Missing');
         if (ctx.parsed.documentType) {
-          missingList = missingList.filter(m => m.document_type.toLowerCase() === ctx.parsed.documentType?.toLowerCase());
+          const filterType = ctx.parsed.documentType.toLowerCase();
+          missingList = missingList.filter(m => {
+            const itemType = m.document_type.toLowerCase();
+            return itemType === filterType ||
+              (filterType.includes('payroll') && itemType.includes('payroll')) ||
+              (filterType.includes('sales') && itemType.includes('sales')) ||
+              (filterType.includes('purchase') && itemType.includes('purchase')) ||
+              (filterType.includes('bank') && itemType.includes('bank')) ||
+              (filterType.includes('expense') && itemType.includes('expense'));
+          });
         }
         if (targetClient) {
           missingList = missingList.filter(m => m.client_id === targetClient.client_id);

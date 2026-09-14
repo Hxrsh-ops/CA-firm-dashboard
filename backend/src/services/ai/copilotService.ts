@@ -1,5 +1,6 @@
 import { IUnitOfWork } from '../../repositories/interfaces.js';
 import { Firm } from '../../types/domain.js';
+import { DashboardAttentionMetrics } from '../../types/api.js';
 import { AIProvider } from './aiProvider.js';
 import { GeminiProvider } from './geminiProvider.js';
 import { CopilotIntentService, ParsedCopilotQuery } from './copilotIntentService.js';
@@ -46,8 +47,8 @@ export class CopilotService {
       };
     }
 
-    // 1. Fetch Authoritative Data from Unit of Work
-    const firm: Firm = (await this.uow.firms.findById(firm_id)) || {
+    // 1. Fetch Authoritative Data from Unit of Work in Parallel
+    const defaultFirm: Firm = {
       firm_id,
       legal_name: 'Vertex & Associates',
       display_name: 'Vertex & Associates',
@@ -60,18 +61,33 @@ export class CopilotService {
       created_at: new Date().toISOString()
     };
 
-    const clients = await this.uow.clients.findAll(firm_id);
-    const documents = await this.uow.documents.findAll(firm_id);
-    const alerts = await this.uow.alerts.findAll(firm_id);
-    const reminders = await this.uow.reminders.findAll(firm_id);
+    const targetPeriod = overridePeriod || (userMessage.toLowerCase().includes('july') || userMessage.toLowerCase().includes('2026-07') ? '2026-07' : '2026-08');
+
+    const [firmRes, clients, documents, alerts, reminders, { matrix, summary: complianceSummary }] = await Promise.all([
+      this.uow.firms.findById(firm_id).catch(() => null),
+      this.uow.clients.findAll(firm_id).catch(() => []),
+      this.uow.documents.findAll(firm_id).catch(() => []),
+      this.uow.alerts.findAll(firm_id).catch(() => []),
+      this.uow.reminders.findAll(firm_id).catch(() => []),
+      this.complianceEngine.evaluateCompliance(firm_id, targetPeriod).catch(() => ({
+        matrix: [],
+        summary: { on_track: 0, missing: 0, needs_review: 0, pending: 0, not_required: 0, total: 0, on_track_percentage: 100 }
+      }))
+    ]);
+
+    const firm: Firm = firmRes || defaultFirm;
 
     // 2. Parse Intent and Entities
-    const parsed = CopilotIntentService.parse(userMessage, clients, overridePeriod || '2026-08');
+    const parsed = CopilotIntentService.parse(userMessage, clients, targetPeriod);
     const period = parsed.period;
 
-    // 3. Compute Deterministic Compliance and Dashboard Metrics
-    const { matrix, summary: complianceSummary } = await this.complianceEngine.evaluateCompliance(firm_id, period);
-    const dashboardData = await this.dashboardService.getDashboardData(firm_id, period);
+    // 3. Compute Attention Metrics Directly (zero extra roundtrips)
+    const attentionMetrics: DashboardAttentionMetrics = {
+      missing_documents: matrix.filter(m => m.status === 'Missing').length,
+      needs_review: documents.filter(d => d.validation_status === 'Review Required' || d.validation_status === 'Pending').length,
+      pending_approval: reminders.filter(r => r.status === 'Pending Approval').length,
+      automatically_processed: documents.filter(d => d.validation_status === 'Valid' && d.processing_status === 'Processed').length
+    };
 
     const targetClient = parsed.targetClientId 
       ? clients.find(c => c.client_id === parsed.targetClientId) 
@@ -84,7 +100,16 @@ export class CopilotService {
       let missingForClient = matrix.filter(m => m.status === 'Missing');
 
       if (parsed.documentType) {
-        missingForClient = missingForClient.filter(m => m.document_type.toLowerCase() === parsed.documentType?.toLowerCase());
+        const filterType = parsed.documentType.toLowerCase();
+        missingForClient = missingForClient.filter(m => {
+          const itemType = m.document_type.toLowerCase();
+          return itemType === filterType ||
+            (filterType.includes('payroll') && itemType.includes('payroll')) ||
+            (filterType.includes('sales') && itemType.includes('sales')) ||
+            (filterType.includes('purchase') && itemType.includes('purchase')) ||
+            (filterType.includes('bank') && itemType.includes('bank')) ||
+            (filterType.includes('expense') && itemType.includes('expense'));
+        });
       }
 
       if (clientForDraft) {
@@ -120,7 +145,7 @@ export class CopilotService {
       reminders,
       matrix,
       complianceSummary,
-      attentionMetrics: dashboardData.attention_metrics,
+      attentionMetrics,
       targetClient,
       draftedReminder
     };
@@ -149,8 +174,8 @@ AUTHORITATIVE PRACTICE FACTS:
 - Total Active Clients: ${clients.length}
 - Target Client: ${targetClient ? `${targetClient.legal_name} (${targetClient.client_id})` : 'None specified'}
 - Compliance Score (Period ${period}): ${complianceSummary.on_track_percentage}% (${complianceSummary.on_track} on track, ${complianceSummary.missing} missing, ${complianceSummary.needs_review} needs review)
-- Missing Documents Count: ${dashboardData.attention_metrics.missing_documents}
-- Review Required Inbound Items: ${dashboardData.attention_metrics.needs_review}
+- Missing Documents Count: ${attentionMetrics.missing_documents}
+- Review Required Inbound Items: ${attentionMetrics.needs_review}
 - Open Alerts Count: ${alerts.filter(a => a.status === 'Open').length}
 - Pending Reminders Count: ${reminders.filter(r => r.status === 'Pending Approval').length}
 

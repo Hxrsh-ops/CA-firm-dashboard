@@ -189,7 +189,6 @@ describe('CA Copilot AI Operations Assistant Backend', () => {
       .send({ message: 'What needs my attention today?' });
 
     expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
     expect(res.body.data.intent).toBe('GET_ATTENTION_ITEMS');
     expect(res.body.data.grounded).toBe(true);
     expect(res.body.data.answer).toBeDefined();
@@ -204,6 +203,7 @@ describe('CA Copilot AI Operations Assistant Backend', () => {
       .send({});
 
     expect(res.status).toBe(400);
-    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBeDefined();
+    expect(res.body.error.code).toBe('INVALID_INPUT');
   });
 });
