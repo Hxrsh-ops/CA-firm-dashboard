@@ -35,35 +35,67 @@ export const WorkItemDetailModal: React.FC<WorkItemDetailModalProps> = ({
   );
   const [overrideReason, setOverrideReason] = useState('');
   const [showOverrideForm, setShowOverrideForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleApprove = async () => {
-    if (item.status === 'Needs Review' && item.context_id) {
-      await dataService.updateDocumentValidation(item.context_id, 'Valid', 'CA partner manual review approval');
-    } else if (item.status === 'Pending Approval' && item.context_id) {
-      await dataService.approveReminder(item.context_id, 'CA Partner');
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    try {
+      let success = false;
+      if (item.status === 'Needs Review' && item.context_id) {
+        success = await dataService.updateDocumentValidation(item.context_id, 'Valid', 'CA partner manual review approval');
+      } else if (item.status === 'Pending Approval' && item.context_id) {
+        success = await dataService.approveReminder(item.context_id, 'CA Partner');
+      } else {
+        success = true;
+      }
+      if (success) {
+        setSuccessMessage('Action approved and logged to immutable Audit Trail.');
+        setTimeout(() => {
+          onActionComplete?.();
+          onClose();
+        }, 800);
+      } else {
+        setErrorMessage('Failed to apply action. Please check backend connection.');
+      }
+    } catch {
+      setErrorMessage('An error occurred while processing action.');
+    } finally {
+      setIsSubmitting(false);
     }
-    setSuccessMessage('Action approved and logged to immutable Audit Trail.');
-    setTimeout(() => {
-      onActionComplete?.();
-      onClose();
-    }, 1000);
   };
 
   const handleMarkNotRequired = async () => {
     if (!overrideReason.trim()) return;
-    if (item.context_id) {
-      await dataService.updateDocumentValidation(
-        item.context_id,
-        'Valid',
-        `CA Decision: Marked Not Required — ${overrideReason}`
-      );
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    try {
+      let success = false;
+      if (item.context_id) {
+        success = await dataService.updateDocumentValidation(
+          item.context_id,
+          'Valid',
+          `CA Decision: Marked Not Required — ${overrideReason}`
+        );
+      } else {
+        success = true;
+      }
+      if (success) {
+        setSuccessMessage('Statutory requirement marked "Not Required" with CA rationale.');
+        setTimeout(() => {
+          onActionComplete?.();
+          onClose();
+        }, 800);
+      } else {
+        setErrorMessage('Failed to log CA override to backend.');
+      }
+    } catch {
+      setErrorMessage('An error occurred while logging override.');
+    } finally {
+      setIsSubmitting(false);
     }
-    setSuccessMessage('Statutory requirement marked "Not Required" with CA rationale.');
-    setTimeout(() => {
-      onActionComplete?.();
-      onClose();
-    }, 1000);
   };
 
   return (
@@ -243,28 +275,36 @@ export const WorkItemDetailModal: React.FC<WorkItemDetailModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-[#FAF8F5] border-t border-[#EAE6DF] flex items-center justify-between">
+        <div className="px-6 py-4 bg-[#FAF8F5] border-t border-[#EAE6DF] flex flex-wrap items-center justify-between gap-3">
           <div>
             {successMessage && (
-              <span className="text-xs font-semibold text-[#16A34A] flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-[#166534] flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
                 {successMessage}
+              </span>
+            )}
+            {errorMessage && (
+              <span className="text-xs font-semibold text-[#DC2626] flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4" />
+                {errorMessage}
               </span>
             )}
           </div>
           <div className="flex items-center gap-2.5">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-[#EAE6DF] bg-white text-xs font-semibold text-[#5C5148] hover:bg-[#F7F4EE] transition-colors"
+              disabled={isSubmitting}
+              className="px-4 py-2 rounded-xl border border-[#EAE6DF] bg-white text-xs font-semibold text-[#5C5148] hover:bg-[#F7F4EE] transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleApprove}
-              className="px-4 py-2 rounded-xl bg-[#3D2D22] hover:bg-[#261B14] text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
+              disabled={isSubmitting}
+              className="px-4 py-2 rounded-xl bg-[#3D2D22] hover:bg-[#261B14] text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors disabled:opacity-50"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Approve & Dispatch</span>
+              <span>{isSubmitting ? 'Processing...' : 'Approve & Dispatch'}</span>
             </button>
           </div>
         </div>

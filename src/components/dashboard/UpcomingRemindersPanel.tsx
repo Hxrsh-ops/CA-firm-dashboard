@@ -34,41 +34,47 @@ export const UpcomingRemindersPanel: React.FC<UpcomingRemindersPanelProps> = ({
       </div>
 
       {/* Reminder List */}
-      <div className="divide-y divide-[#F5F2EC]">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => onSelectReminder?.(item)}
-            className="px-4 py-3 flex items-center justify-between gap-3 hover:bg-[#FAF9F6] transition-colors cursor-pointer group"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              {/* Date Box */}
-              <div className="w-11 h-11 rounded-lg bg-[#FAF8F5] border border-[#EAE6DF] flex flex-col items-center justify-center shrink-0">
-                <span className="text-[14px] font-bold text-[#2B231F] leading-none font-display">
-                  {item.day}
-                </span>
-                <span className="text-[9.5px] font-bold text-[#8C8077] uppercase tracking-wider mt-0.5">
-                  {item.month}
-                </span>
+      {items.length > 0 ? (
+        <div className="divide-y divide-[#F5F2EC]">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => onSelectReminder?.(item)}
+              className="px-4 py-3 flex items-center justify-between gap-3 hover:bg-[#FAF9F6] transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Date Box */}
+                <div className="w-11 h-11 rounded-lg bg-[#FAF8F5] border border-[#EAE6DF] flex flex-col items-center justify-center shrink-0">
+                  <span className="text-[14px] font-bold text-[#2B231F] leading-none font-display">
+                    {item.day}
+                  </span>
+                  <span className="text-[9.5px] font-bold text-[#8C8077] uppercase tracking-wider mt-0.5">
+                    {item.month}
+                  </span>
+                </div>
+
+                {/* Title & Client */}
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-[#2B231F] truncate group-hover:text-[#5F4635] transition-colors">
+                    {item.title}
+                  </div>
+                  <div className="text-[11px] text-[#8C827A] truncate mt-0.5">
+                    {item.client_name}
+                  </div>
+                </div>
               </div>
 
-              {/* Title & Client */}
-              <div className="min-w-0">
-                <div className="text-[13px] font-semibold text-[#2B231F] truncate group-hover:text-[#5F4635] transition-colors">
-                  {item.title}
-                </div>
-                <div className="text-[11px] text-[#8C827A] truncate mt-0.5">
-                  {item.client_name}
-                </div>
+              <div className="shrink-0 pl-2">
+                <StatusBadge status={item.status} size="sm" />
               </div>
             </div>
-
-            <div className="shrink-0 pl-2">
-              <StatusBadge status={item.status} size="sm" />
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="p-6 text-center text-xs text-[#8C827A]">
+          No upcoming reminders scheduled.
+        </div>
+      )}
     </div>
   );
 };

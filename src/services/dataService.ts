@@ -154,6 +154,9 @@ class DataService {
           this.complianceSummary = complianceData.summary || null;
           this.complianceMatrix = complianceData.matrix || [];
         }
+        if (!this.complianceSummary && dashboardData?.compliance_summary) {
+          this.complianceSummary = dashboardData.compliance_summary;
+        }
         if (dashboardData?.priority_work) {
           this.priorityWork = dashboardData.priority_work;
         }
@@ -504,25 +507,32 @@ class DataService {
   getComplianceDistribution() {
     const summary = this.complianceSummary;
     if (summary) {
-      return [
-        { name: 'On Track', value: summary.compliant_clients || 0, color: '#16A34A' },
-        { name: 'Missing Docs', value: summary.missing_docs_count || 0, color: '#DC2626' },
-        { name: 'Needs Review', value: summary.review_required_count || 0, color: '#D97706' },
-        { name: 'Pending Action', value: summary.pending_approval_reminders || 0, color: '#755843' },
+      const onTrack = summary.on_track ?? summary.compliant_clients ?? 0;
+      const missing = summary.missing ?? summary.missing_docs_count ?? 0;
+      const needsReview = summary.needs_review ?? summary.review_required_count ?? 0;
+      const pending = summary.pending ?? summary.pending_approval_reminders ?? 0;
+      const notRequired = summary.not_required ?? 0;
+
+      const items = [
+        { name: 'On Track', value: onTrack, color: '#16A34A' },
+        { name: 'Missing Docs', value: missing, color: '#DC2626' },
+        { name: 'Needs Review', value: needsReview, color: '#D97706' },
+        { name: 'Pending Action', value: pending, color: '#755843' },
       ];
+      if (notRequired > 0) {
+        items.push({ name: 'Not Required', value: notRequired, color: '#9E9288' });
+      }
+      return items;
     }
-    return [
-      { name: 'On Track', value: 8, color: '#16A34A' },
-      { name: 'Missing Docs', value: 2, color: '#DC2626' },
-      { name: 'Needs Review', value: 2, color: '#D97706' },
-      { name: 'Pending Action', value: 1, color: '#755843' },
-    ];
+    return [];
   }
 
-  // MUTATIONS (Synchronous cache update + Async API dispatch)
+  // MUTATIONS (Optimistic update with automatic resync and rollback on error)
   async approveReminder(reminderId: string, approvedBy: string = 'CA Partner'): Promise<boolean> {
     const reminder = this.reminders.find((r) => r.reminder_id === reminderId);
     if (reminder) {
+      const oldStatus = reminder.status;
+      const oldApprovedBy = reminder.approved_by;
       reminder.status = 'Approved';
       reminder.approved_by = approvedBy;
       this.auditLogs.unshift({
@@ -533,7 +543,7 @@ class DataService {
         action: 'REMINDER_APPROVED',
         entity_type: 'REMINDER',
         entity_id: reminderId,
-        old_value: 'Pending Approval',
+        old_value: oldStatus,
         new_value: 'Approved',
         reason: 'CA partner manual one-click sign-off',
       });
@@ -545,6 +555,10 @@ class DataService {
         return true;
       } catch (err) {
         console.warn('[DataService] approveReminder API call failed:', err);
+        // Rollback on failure and re-sync
+        reminder.status = oldStatus;
+        reminder.approved_by = oldApprovedBy;
+        await this.syncWithBackend().catch(() => {});
         return false;
       }
     }
@@ -554,6 +568,7 @@ class DataService {
   async resolveAlert(alertId: string, user: string = 'CA Partner'): Promise<boolean> {
     const alert = this.alerts.find((a) => a.alert_id === alertId);
     if (alert) {
+      const oldStatus = alert.status;
       alert.status = 'Resolved';
       alert.resolved_at = new Date().toISOString();
       this.auditLogs.unshift({
@@ -564,7 +579,7 @@ class DataService {
         action: 'ALERT_RESOLVED',
         entity_type: 'ALERT',
         entity_id: alertId,
-        old_value: 'Open',
+        old_value: oldStatus,
         new_value: 'Resolved',
         reason: 'Manually cleared by partner review',
       });
@@ -576,10 +591,33 @@ class DataService {
         return true;
       } catch (err) {
         console.warn('[DataService] updateAlert API call failed:', err);
+        alert.status = oldStatus;
+        await this.syncWithBackend().catch(() => {});
         return false;
       }
     }
     return false;
+  }
+
+  async reviewDocument(
+    docId: string,
+    params: {
+      action: 'approve' | 'reject' | 'reclassify';
+      document_type?: string;
+      period?: string;
+      notes?: string;
+      reviewed_by?: string;
+    }
+  ): Promise<boolean> {
+    try {
+      await apiClient.reviewDocument(docId, params);
+      await this.syncWithBackend();
+      return true;
+    } catch (err) {
+      console.warn('[DataService] reviewDocument API call failed:', err);
+      await this.syncWithBackend().catch(() => {});
+      return false;
+    }
   }
 
   async updateDocumentValidation(docId: string, status: ValidationStatus, notes?: string, user: string = 'CA Partner'): Promise<boolean> {
@@ -609,6 +647,8 @@ class DataService {
         return true;
       } catch (err) {
         console.warn('[DataService] reviewDocument API call failed:', err);
+        doc.validation_status = oldVal;
+        await this.syncWithBackend().catch(() => {});
         return false;
       }
     }
@@ -619,6 +659,8 @@ class DataService {
     const doc = this.documents.find((d) => d.document_id === docId);
     if (doc) {
       const oldType = doc.document_type;
+      const oldValidation = doc.validation_status;
+      const oldConfidence = doc.ai_confidence;
       doc.document_type = newType;
       doc.validation_status = 'Valid';
       doc.ai_confidence = 1.0;
@@ -642,6 +684,10 @@ class DataService {
         return true;
       } catch (err) {
         console.warn('[DataService] reclassify API call failed:', err);
+        doc.document_type = oldType;
+        doc.validation_status = oldValidation;
+        doc.ai_confidence = oldConfidence;
+        await this.syncWithBackend().catch(() => {});
         return false;
       }
     }
@@ -652,6 +698,7 @@ class DataService {
     const doc = this.documents.find((d) => d.document_id === docId);
     if (doc) {
       const oldPeriod = doc.period;
+      const oldValidation = doc.validation_status;
       doc.period = newPeriod;
       doc.validation_status = 'Valid';
       this.auditLogs.unshift({
@@ -674,6 +721,9 @@ class DataService {
         return true;
       } catch (err) {
         console.warn('[DataService] reclassify period API call failed:', err);
+        doc.period = oldPeriod;
+        doc.validation_status = oldValidation;
+        await this.syncWithBackend().catch(() => {});
         return false;
       }
     }
@@ -683,6 +733,7 @@ class DataService {
   async updateSetting(key: string, value: string, user: string = 'CA Partner'): Promise<boolean> {
     const setting = this.settings.find((s) => s.setting_key === key);
     if (setting) {
+      const oldVal = setting.setting_value;
       setting.setting_value = value;
       this.notifyListeners();
 
@@ -692,6 +743,8 @@ class DataService {
         return true;
       } catch (err) {
         console.warn('[DataService] updateSetting API call failed:', err);
+        setting.setting_value = oldVal;
+        await this.syncWithBackend().catch(() => {});
         return false;
       }
     }

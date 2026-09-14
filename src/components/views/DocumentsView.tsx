@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
-import { FileText, Download, Eye } from 'lucide-react';
+import { FileText, Copy, Eye } from 'lucide-react';
 import { dataService, useDataSync } from '../../services/dataService';
 import { StatusBadge } from '../common/StatusBadge';
+import { DocumentReviewModal } from '../common/DocumentReviewModal';
+import type { Document } from '../../types';
 
 export const DocumentsView: React.FC = () => {
-  useDataSync();
+  const { isLoaded } = useDataSync();
   const [selectedType, setSelectedType] = useState('All');
+  const [selectedDocForReview, setSelectedDocForReview] = useState<Document | null>(null);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
   const documents = dataService.getDocuments();
 
   const docTypes = ['All', 'Bank Statement', 'Expense Bills', 'Payroll Register', 'Sales Register', 'Purchase Register', 'TDS Return'];
@@ -13,6 +19,18 @@ export const DocumentsView: React.FC = () => {
   const filtered = selectedType === 'All'
     ? documents
     : documents.filter((d) => d.document_type === selectedType);
+
+  const handleOpenReview = (doc: Document) => {
+    setSelectedDocForReview(doc);
+    setIsReviewOpen(true);
+  };
+
+  const handleDownloadInfo = (doc: Document) => {
+    const text = `Document ID: ${doc.document_id}\nFilename: ${doc.filename}\nType: ${doc.document_type}\nPeriod: ${doc.period}\nClient ID: ${doc.client_id}\nValidation Status: ${doc.validation_status}\nDrive Ref: ${doc.drive_file_id || 'N/A'}\nReceived: ${doc.received_at}`;
+    navigator.clipboard?.writeText(text);
+    setToastMessage(`Document metadata copied for ${doc.filename}`);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
 
   return (
     <div className="space-y-6 pb-12 select-none">
@@ -27,6 +45,13 @@ export const DocumentsView: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Toast */}
+      {toastMessage && (
+        <div className="p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl text-xs font-semibold text-[#166534] animate-in fade-in duration-150">
+          {toastMessage}
+        </div>
+      )}
 
       {/* Filter Tabs */}
       <div className="flex flex-wrap items-center gap-2">
@@ -61,53 +86,86 @@ export const DocumentsView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F5F2EC]">
-              {filtered.map((doc) => (
-                <tr key={doc.document_id} className="hover:bg-[#FAF9F6] transition-colors">
-                  <td className="py-3 px-4 font-semibold text-[#2B231F] flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#8C827A]" />
-                    <span>{doc.filename}</span>
-                  </td>
-                  <td className="py-3 px-3 text-[#4A3E38] font-medium">
-                    {doc.document_type}
-                  </td>
-                  <td className="py-3 px-3 text-[#7A7067]">
-                    {doc.period}
-                  </td>
-                  <td className="py-3 px-3 text-[#8C827A] font-mono text-[11px]">
-                    {doc.file_size || '1.8 MB'}
-                  </td>
-                  <td className="py-3 px-3">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#F0FDF4] text-[#166534] border border-[#BBF7D0]">
-                      {Math.round(doc.ai_confidence * 100)}%
-                    </span>
-                  </td>
-                  <td className="py-3 px-3">
-                    <StatusBadge status={doc.validation_status} size="sm" />
-                  </td>
-                  <td className="py-3 px-3 text-right pr-4">
-                    <div className="inline-flex items-center gap-1.5">
-                      <button
-                        onClick={() => alert(`Opening preview of ${doc.filename}`)}
-                        className="p-1 rounded text-[#8C827A] hover:text-[#2B231F] hover:bg-[#EAE6DD]"
-                        title="Preview"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => alert(`Downloading ${doc.filename}`)}
-                        className="p-1 rounded text-[#8C827A] hover:text-[#2B231F] hover:bg-[#EAE6DD]"
-                        title="Download"
-                      >
-                        <Download className="w-4 h-4" />
-                      </button>
-                    </div>
+              {!isLoaded ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-xs text-[#8C827A]">
+                    <div className="w-5 h-5 border-2 border-[#8E6F58] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                    <span>Loading statutory documents repository...</span>
                   </td>
                 </tr>
-              ))}
+              ) : filtered.length > 0 ? (
+                filtered.map((doc) => (
+                  <tr 
+                    key={doc.document_id} 
+                    onClick={() => handleOpenReview(doc)}
+                    className="hover:bg-[#FAF9F6] transition-colors cursor-pointer"
+                  >
+                    <td className="py-3 px-4 font-semibold text-[#2B231F] flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[#8C827A]" />
+                      <span>{doc.filename}</span>
+                    </td>
+                    <td className="py-3 px-3 text-[#4A3E38] font-medium">
+                      {doc.document_type}
+                    </td>
+                    <td className="py-3 px-3 text-[#7A7067]">
+                      {doc.period}
+                    </td>
+                    <td className="py-3 px-3 text-[#8C827A] font-mono text-[11px]">
+                      {doc.file_size || '1.8 MB'}
+                    </td>
+                    <td className="py-3 px-3">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#F0FDF4] text-[#166534] border border-[#BBF7D0]">
+                        {Math.round(doc.ai_confidence * 100)}%
+                      </span>
+                    </td>
+                    <td className="py-3 px-3">
+                      <StatusBadge status={doc.validation_status} size="sm" />
+                    </td>
+                    <td className="py-3 px-3 text-right pr-4" onClick={(e) => e.stopPropagation()}>
+                      <div className="inline-flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleOpenReview(doc)}
+                          className="p-1 rounded text-[#8C827A] hover:text-[#2B231F] hover:bg-[#EAE6DD]"
+                          title="Inspect & Review Document"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadInfo(doc)}
+                          className="p-1 rounded text-[#8C827A] hover:text-[#2B231F] hover:bg-[#EAE6DD]"
+                          title="Copy Document Metadata / Reference"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-xs text-[#8C827A]">
+                    No statutory documents found {selectedType !== 'All' ? `for category "${selectedType}"` : 'in repository'}.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Document Review Modal */}
+      <DocumentReviewModal
+        document={selectedDocForReview}
+        isOpen={isReviewOpen}
+        onClose={() => {
+          setIsReviewOpen(false);
+          setSelectedDocForReview(null);
+        }}
+        onActionComplete={() => {
+          dataService.syncWithBackend();
+        }}
+      />
     </div>
   );
 };
+

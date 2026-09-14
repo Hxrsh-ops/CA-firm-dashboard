@@ -2,7 +2,7 @@ import React from 'react';
 import { dataService, useDataSync } from '../../services/dataService';
 
 export const ReportsView: React.FC = () => {
-  useDataSync();
+  const { isLoaded } = useDataSync();
   const clients = dataService.getClients();
   const complianceMatrix = dataService.getComplianceMatrix();
   const documents = dataService.getDocuments();
@@ -96,7 +96,19 @@ export const ReportsView: React.FC = () => {
           Statutory Filing Health by Entity (August 2026 Cycle)
         </h3>
         <div className="space-y-3">
-          {clientReports.length > 0 ? (
+          {!isLoaded ? (
+            <div className="space-y-2.5">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="p-3.5 bg-[#FAF8F5] rounded-xl border border-[#EAE6DF] space-y-2 animate-pulse">
+                  <div className="flex items-center justify-between">
+                    <div className="h-3.5 bg-[#EAE6DD] rounded w-1/4" />
+                    <div className="h-3 bg-[#EAE6DD] rounded w-1/6" />
+                  </div>
+                  <div className="w-full h-2 bg-[#EAE6DD] rounded-full" />
+                </div>
+              ))}
+            </div>
+          ) : clientReports.length > 0 ? (
             clientReports.map((item, idx) => (
               <div key={idx} className="p-3 bg-[#FAF8F5] rounded-xl border border-[#EAE6DF] space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
@@ -112,8 +124,8 @@ export const ReportsView: React.FC = () => {
               </div>
             ))
           ) : (
-            <div className="text-xs text-[#8C827A] p-4 text-center">
-              Loading statutory compliance records...
+            <div className="text-xs text-[#8C827A] p-6 text-center">
+              No active client compliance data recorded for the August 2026 cycle.
             </div>
           )}
         </div>

@@ -222,6 +222,33 @@ describe('CA Copilot API v1 HTTP Endpoints & Webhooks', () => {
       expect(res.status).toBe(200);
       expect(res.body.data.document).toBeDefined();
       expect(res.body.data.document.client_id).toBe('CLI-001');
+      expect(res.body.data.document.processing_status).toBe('Processed');
+      expect(res.body.data.document.validation_status).toBe('Valid');
+      expect(res.body.data.is_duplicate).toBe(false);
+    });
+
+    it('processes document intake webhook with 0.92 confidence resulting in Processed and Review Required', async () => {
+      const res = await request(app)
+        .post('/api/v1/webhooks/document-intake')
+        .set('x-firm-id', FIRM_ID)
+        .set('x-webhook-secret', env.WEBHOOK_SECRET)
+        .send({
+          email_id: 'EML-TEST-092',
+          sender_email: 'finance@acmeglobal.com',
+          filename: 'QB_September_2026_Sales_Register_TEST.pdf',
+          ai_extracted: {
+            client_company_name: 'Acme Global',
+            document_type: 'Sales Register',
+            applicable_period: '2026-09'
+          },
+          ai_confidence: 0.92
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.document).toBeDefined();
+      expect(res.body.data.document.client_id).toBe('CLI-001');
+      expect(res.body.data.document.processing_status).toBe('Processed');
+      expect(res.body.data.document.validation_status).toBe('Review Required');
       expect(res.body.data.is_duplicate).toBe(false);
     });
 

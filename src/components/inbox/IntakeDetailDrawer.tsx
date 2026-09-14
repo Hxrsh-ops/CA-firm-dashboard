@@ -73,48 +73,80 @@ export const IntakeDetailDrawer: React.FC<IntakeDetailDrawerProps> = ({
 
   const periods = ['Aug 2026', 'Jul 2026', 'Jun 2026', 'Sep 2026'];
 
-  const handleApproveValid = () => {
-    dataService.updateDocumentValidation(
-      item.document_id,
-      'Valid',
-      'Partner CA Arun approved intake classification and reconciliation.'
-    );
-    setSuccessToast('Document verified & marked Valid. Audit log recorded.');
-    setTimeout(() => {
-      onActionComplete?.();
-    }, 1000);
+  const handleApproveValid = async () => {
+    try {
+      const ok = await dataService.updateDocumentValidation(
+        item.document_id,
+        'Valid',
+        'Partner CA Arun approved intake classification and reconciliation.'
+      );
+      if (ok) {
+        setSuccessToast('Document verified & marked Valid. Audit log recorded.');
+        setTimeout(() => {
+          onActionComplete?.();
+        }, 800);
+      } else {
+        setSuccessToast('Failed to update validation on backend.');
+      }
+    } catch {
+      setSuccessToast('Error updating document validation.');
+    }
   };
 
-  const handleSaveTypeCorrection = () => {
-    dataService.updateDocumentClassification(item.document_id, selectedDocType);
-    setIsEditingType(false);
-    setSuccessToast(`Classification corrected to ${selectedDocType}. Validated.`);
-    setTimeout(() => {
-      onActionComplete?.();
-    }, 1000);
+  const handleSaveTypeCorrection = async () => {
+    try {
+      const ok = await dataService.updateDocumentClassification(item.document_id, selectedDocType);
+      setIsEditingType(false);
+      if (ok) {
+        setSuccessToast(`Classification corrected to ${selectedDocType}. Validated.`);
+        setTimeout(() => {
+          onActionComplete?.();
+        }, 800);
+      } else {
+        setSuccessToast('Failed to save classification on backend.');
+      }
+    } catch {
+      setSuccessToast('Error saving classification correction.');
+    }
   };
 
-  const handleSavePeriodCorrection = () => {
-    dataService.updateDocumentPeriod(item.document_id, selectedPeriod);
-    setIsEditingPeriod(false);
-    setSuccessToast(`Period corrected to ${selectedPeriod}.`);
-    setTimeout(() => {
-      onActionComplete?.();
-    }, 1000);
+  const handleSavePeriodCorrection = async () => {
+    try {
+      const ok = await dataService.updateDocumentPeriod(item.document_id, selectedPeriod);
+      setIsEditingPeriod(false);
+      if (ok) {
+        setSuccessToast(`Period corrected to ${selectedPeriod}.`);
+        setTimeout(() => {
+          onActionComplete?.();
+        }, 800);
+      } else {
+        setSuccessToast('Failed to save period on backend.');
+      }
+    } catch {
+      setSuccessToast('Error saving period correction.');
+    }
   };
 
-  const handleMarkNotRequired = () => {
+  const handleMarkNotRequired = async () => {
     if (!overrideReason.trim()) return;
-    dataService.updateDocumentValidation(
-      item.document_id,
-      'Valid',
-      `CA Decision: Marked Not Required — ${overrideReason}`
-    );
-    setShowOverrideForm(false);
-    setSuccessToast('Marked "Not Required" with CA rationale. Audit trail logged.');
-    setTimeout(() => {
-      onActionComplete?.();
-    }, 1000);
+    try {
+      const ok = await dataService.updateDocumentValidation(
+        item.document_id,
+        'Valid',
+        `CA Decision: Marked Not Required — ${overrideReason}`
+      );
+      setShowOverrideForm(false);
+      if (ok) {
+        setSuccessToast('Marked "Not Required" with CA rationale. Audit trail logged.');
+        setTimeout(() => {
+          onActionComplete?.();
+        }, 800);
+      } else {
+        setSuccessToast('Failed to log CA override on backend.');
+      }
+    } catch {
+      setSuccessToast('Error logging CA override.');
+    }
   };
 
   const isReview = item.validation_status === 'Review Required' || item.is_exception;
@@ -549,11 +581,15 @@ export const IntakeDetailDrawer: React.FC<IntakeDetailDrawerProps> = ({
               </button>
             ) : (
               <button
-                onClick={() => alert(`Opening preview of ${item.filename}`)}
+                onClick={() => {
+                  const text = `Document ID: ${item.document_id}\nFilename: ${item.filename}\nType: ${item.document_type}\nPeriod: ${item.period}\nClient: ${item.client_name}\nSender: ${item.sender_email}`;
+                  navigator.clipboard?.writeText(text);
+                  setSuccessToast('Document reference & metadata copied.');
+                }}
                 className="px-4 py-2 rounded-xl bg-[#3D2D22] hover:bg-[#261B14] text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
               >
                 <Eye className="w-3.5 h-3.5" />
-                <span>View Document</span>
+                <span>Document Details</span>
               </button>
             )}
           </div>

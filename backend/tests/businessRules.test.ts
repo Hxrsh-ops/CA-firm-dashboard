@@ -55,7 +55,32 @@ describe('CA Copilot Core Business Rules & Services', () => {
       expect(result.isDuplicate).toBe(false);
     });
 
-    it('marks document Review Required when confidence is between 0.80 and 0.949', async () => {
+    it('marks document Processed and Review Required for 0.92 confidence (Make AI intake scenario)', async () => {
+      const docService = new DocumentService(uow);
+      const result = await docService.processIntakeDocument(FIRM_ID, {
+        sender_email: 'finance@acmeglobal.com',
+        filename: 'QB_September_2026_Sales_Register_TEST.pdf',
+        email_id: 'EML-TEST-92',
+        ai_extracted: {
+          client_company_name: 'Acme Global',
+          document_type: 'Sales Register',
+          applicable_period: '2026-09'
+        },
+        ai_confidence: 0.92
+      });
+
+      expect(result.document.processing_status).toBe('Processed');
+      expect(result.document.validation_status).toBe('Review Required');
+      expect(result.isUnknownClient).toBe(false);
+      expect(result.isDuplicate).toBe(false);
+
+      const alerts = await uow.alerts.findAll(FIRM_ID);
+      const reviewAlert = alerts.find(a => a.client_id === 'CLI-001' && a.alert_type === 'Review Required');
+      expect(reviewAlert).toBeDefined();
+      expect(reviewAlert?.status).toBe('Open');
+    });
+
+    it('marks document Review Required and Processed when confidence is between 0.80 and 0.949', async () => {
       const docService = new DocumentService(uow);
       const result = await docService.processIntakeDocument(FIRM_ID, {
         sender_email: 'accounts@nexusfintech.io',
@@ -70,13 +95,14 @@ describe('CA Copilot Core Business Rules & Services', () => {
       });
 
       expect(result.document.validation_status).toBe('Review Required');
+      expect(result.document.processing_status).toBe('Processed');
       const alerts = await uow.alerts.findAll(FIRM_ID);
       const reviewAlert = alerts.find(a => a.client_id === 'CLI-002' && a.alert_type === 'Review Required');
       expect(reviewAlert).toBeDefined();
       expect(reviewAlert?.status).toBe('Open');
     });
 
-    it('marks document Review Required and triggers High alert when confidence < 0.80', async () => {
+    it('marks document Review Required and Processed with High alert when confidence < 0.80', async () => {
       const docService = new DocumentService(uow);
       const result = await docService.processIntakeDocument(FIRM_ID, {
         sender_email: 'finance@acmeglobal.com',
@@ -90,6 +116,7 @@ describe('CA Copilot Core Business Rules & Services', () => {
       });
 
       expect(result.document.validation_status).toBe('Review Required');
+      expect(result.document.processing_status).toBe('Processed');
       const alerts = await uow.alerts.findAll(FIRM_ID);
       const lowConfAlert = alerts.find(a => a.client_id === 'CLI-001' && a.severity === 'High' && a.alert_type === 'Review Required');
       expect(lowConfAlert).toBeDefined();
@@ -97,7 +124,7 @@ describe('CA Copilot Core Business Rules & Services', () => {
   });
 
   describe('3. Unknown Client & Duplicate Detection', () => {
-    it('creates Unknown Client alert when sender email is not registered', async () => {
+    it('creates Unknown Client alert when sender email is not registered while marking document Processed', async () => {
       const docService = new DocumentService(uow);
       const result = await docService.processIntakeDocument(FIRM_ID, {
         sender_email: 'stranger@unknownbiz.com',
@@ -113,13 +140,14 @@ describe('CA Copilot Core Business Rules & Services', () => {
       expect(result.isUnknownClient).toBe(true);
       expect(result.document.client_id).toBe('CLI-UNKNOWN');
       expect(result.document.validation_status).toBe('Review Required');
+      expect(result.document.processing_status).toBe('Processed');
 
       const alerts = await uow.alerts.findAll(FIRM_ID);
       const unknownAlert = alerts.find(a => a.alert_type === 'Unknown Client');
       expect(unknownAlert).toBeDefined();
     });
 
-    it('detects duplicate document for same client, type, and period', async () => {
+    it('detects duplicate document for same client, type, and period while marking document Processed', async () => {
       const docService = new DocumentService(uow);
       // Acme Sales Register for 2026-08 already exists in seed (DOC-001)
       const result = await docService.processIntakeDocument(FIRM_ID, {
@@ -136,6 +164,7 @@ describe('CA Copilot Core Business Rules & Services', () => {
 
       expect(result.isDuplicate).toBe(true);
       expect(result.document.validation_status).toBe('Review Required');
+      expect(result.document.processing_status).toBe('Processed');
 
       const alerts = await uow.alerts.findAll(FIRM_ID);
       const dupAlert = alerts.find(a => a.client_id === 'CLI-001' && a.alert_type === 'Duplicate');

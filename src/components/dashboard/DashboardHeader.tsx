@@ -1,12 +1,19 @@
 import React from 'react';
 
 export const DashboardHeader: React.FC = () => {
+  const formattedDate = new Intl.DateTimeFormat('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date());
+
   return (
     <div className="flex flex-col md:flex-row md:items-end justify-between pb-6 select-none gap-4">
       {/* Left Greeting */}
       <div>
         <div className="text-[13px] font-normal text-[#8A7F77] mb-1">
-          Thursday, 11 September 2026
+          {formattedDate}
         </div>
         <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-[#2B231F] leading-tight font-display">
           Good morning, Arun.

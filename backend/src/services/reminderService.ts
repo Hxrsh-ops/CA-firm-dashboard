@@ -1,7 +1,6 @@
 import { IUnitOfWork } from '../repositories/interfaces.js';
 import { Reminder, DocumentType } from '../types/domain.js';
 import { AuditService } from './auditService.js';
-import { makeClient } from '../integrations/makeClient.js';
 
 export class ReminderService {
   private auditService: AuditService;
@@ -130,7 +129,7 @@ export class ReminderService {
   }
 
   /**
-   * Dispatch Reminder via Make/Gmail.
+   * Mark Approved Reminder as Sent upon dispatch confirmation.
    * Strictly requires reminder.status === 'Approved'.
    */
   async sendReminder(firm_id: string, reminderId: string, user = 'CA Partner'): Promise<Reminder> {
@@ -142,12 +141,6 @@ export class ReminderService {
     // HUMAN-IN-THE-LOOP SAFETY GATE
     if (reminder.status !== 'Approved') {
       throw new Error(`Cannot send reminder: Current status is "${reminder.status}". Reminder must be in "Approved" status before dispatch.`);
-    }
-
-    // Dispatch to Make.com outbound webhook
-    const dispatchResult = await makeClient.dispatchApprovedReminder(reminder);
-    if (!dispatchResult.success) {
-      throw new Error(`Failed to dispatch reminder via automation engine: ${dispatchResult.error}`);
     }
 
     const sentTimestamp = new Date().toISOString();

@@ -22,13 +22,18 @@ export const AnalyticsSection: React.FC = () => {
   const [pendingRange, setPendingRange] = useState('Last 14 days');
   const [complianceRange, setComplianceRange] = useState('This Month');
 
+  const isLoaded = dataService.getIsLoaded();
+  const summary = dataService.getComplianceSummary();
   const intakeData = dataService.getIntakeTrend(14);
   const pendingData = dataService.getPendingTrend(14);
   const complianceData = dataService.getComplianceDistribution();
 
   const totalCompl = complianceData.reduce((acc, c) => acc + c.value, 0);
-  const onTrackCompl = complianceData.find((c) => c.name === 'On Track')?.value || 0;
-  const onTrackPct = totalCompl > 0 ? Math.round((onTrackCompl / totalCompl) * 100) : 100;
+  const onTrackPct = summary?.on_track_percentage !== undefined
+    ? summary.on_track_percentage
+    : totalCompl > 0
+    ? Math.round(((complianceData.find((c) => c.name === 'On Track')?.value || 0) / totalCompl) * 100)
+    : 0;
 
   // Custom Tooltip for Charts
   const CustomBarTooltip = ({ active, payload, label }: any) => {
@@ -194,57 +199,68 @@ export const AnalyticsSection: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 mt-2 h-44">
-          {/* Donut Chart with Center Text */}
-          <div className="w-[48%] h-full relative flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={complianceData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={46}
-                  outerRadius={65}
-                  paddingAngle={2}
-                  dataKey="value"
-                  strokeWidth={0}
+        {!isLoaded ? (
+          <div className="flex flex-col items-center justify-center h-44 text-center">
+            <div className="w-5 h-5 border-2 border-[#8E6F58] border-t-transparent rounded-full animate-spin mb-2" />
+            <span className="text-xs text-[#8C827A]">Loading compliance data...</span>
+          </div>
+        ) : complianceData.length === 0 || totalCompl === 0 ? (
+          <div className="flex flex-col items-center justify-center h-44 text-center">
+            <span className="text-xs text-[#8C827A]">No compliance requirements recorded</span>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-2 mt-2 h-44">
+            {/* Donut Chart with Center Text */}
+            <div className="w-[48%] h-full relative flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={complianceData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={46}
+                    outerRadius={65}
+                    paddingAngle={2}
+                    dataKey="value"
+                    strokeWidth={0}
+                  >
+                    {complianceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              {/* Center Label */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-[20px] font-bold text-[#2B231F] leading-none font-display">
+                  {onTrackPct}%
+                </span>
+                <span className="text-[10px] text-[#8C827A] font-medium mt-0.5">
+                  On Track
+                </span>
+              </div>
+            </div>
+
+            {/* Right Legend List */}
+            <div className="w-[52%] space-y-1.5 pl-1">
+              {complianceData.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex items-center justify-between text-[11.5px]"
                 >
-                  {complianceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            {/* Center Label */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-[20px] font-bold text-[#2B231F] leading-none font-display">
-                {onTrackPct}%
-              </span>
-              <span className="text-[10px] text-[#8C827A] font-medium mt-0.5">
-                On Track
-              </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-[#5C5148] font-normal">{item.name}</span>
+                  </div>
+                  <span className="font-semibold text-[#2B231F]">{item.value}</span>
+                </div>
+              ))}
             </div>
           </div>
-
-          {/* Right Legend List */}
-          <div className="w-[52%] space-y-1.5 pl-1">
-            {complianceData.map((item) => (
-              <div
-                key={item.name}
-                className="flex items-center justify-between text-[11.5px]"
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-[#5C5148] font-normal">{item.name}</span>
-                </div>
-                <span className="font-semibold text-[#2B231F]">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

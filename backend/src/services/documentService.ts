@@ -61,7 +61,7 @@ export class DocumentService {
     const aiConfidence = typeof payload.ai_confidence === 'number' ? payload.ai_confidence : 0.85;
 
     let validationStatus: ValidationStatus = 'Pending';
-    let processingStatus: ProcessingStatus = 'Processing';
+    let processingStatus: ProcessingStatus = 'Processed';
     let reviewNotes = '';
 
     // 4. Duplicate Check (Existing document for same client, type, period)
@@ -110,6 +110,7 @@ export class DocumentService {
       } else if (aiConfidence >= config.reviewConfidence) {
         // Medium confidence (0.80 <= confidence < 0.95)
         validationStatus = 'Review Required';
+        processingStatus = 'Processed';
         reviewNotes = `AI confidence (${Math.round(aiConfidence * 100)}%) is below auto-process threshold (${Math.round(config.autoProcessConfidence * 100)}%). CA review required.`;
         
         await this.alertService.createAlert({
@@ -124,6 +125,7 @@ export class DocumentService {
       } else {
         // Low confidence < REVIEW_CONFIDENCE (default 0.80)
         validationStatus = 'Review Required';
+        processingStatus = 'Processed';
         reviewNotes = `Low AI extraction confidence (${Math.round(aiConfidence * 100)}%). Document quality or layout requires manual inspection.`;
         
         await this.alertService.createAlert({

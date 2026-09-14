@@ -7,7 +7,7 @@ import { AskCopilotDrawer } from '../common/AskCopilotDrawer';
 import { WorkItemDetailModal } from '../common/WorkItemDetailModal';
 import type { PriorityWorkItem } from '../../types';
 import { dataService, useDataSync } from '../../services/dataService';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface AppShellProps {
   activeTab: NavigationTab;
@@ -30,10 +30,11 @@ export const AppShell: React.FC<AppShellProps> = ({
   onOpenCopilotWithQuery,
   children,
 }) => {
-  useDataSync();
+  const { connectionStatus, refresh } = useDataSync();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isCopilotDrawerOpen, setIsCopilotDrawerOpen] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const handleOpenSearch = () => setIsSearchOpen(true);
   const handleCloseSearch = () => setIsSearchOpen(false);
@@ -41,6 +42,15 @@ export const AppShell: React.FC<AppShellProps> = ({
   const handleAskCopilotFromSearch = (query: string) => {
     onOpenCopilotWithQuery(query);
     setIsCopilotDrawerOpen(true);
+  };
+
+  const handleRetryConnection = async () => {
+    setIsRetrying(true);
+    try {
+      await refresh();
+    } finally {
+      setIsRetrying(false);
+    }
   };
 
   const inboxSummary = dataService.getIntakeSummary();
@@ -102,6 +112,26 @@ export const AppShell: React.FC<AppShellProps> = ({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Backend Connection Warning Banner */}
+        {connectionStatus === 'unavailable' && (
+          <div className="bg-[#FEF2F2] border-b border-[#FECACA] px-4 py-2 text-xs text-[#991B1B] flex items-center justify-between z-30">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[#DC2626] shrink-0" />
+              <span>
+                <strong>Backend Service Unreachable:</strong> Live data updates are currently paused. Please verify backend server connection.
+              </span>
+            </div>
+            <button
+              onClick={handleRetryConnection}
+              disabled={isRetrying}
+              className="px-2.5 py-1 bg-white hover:bg-[#FDF2F2] border border-[#FECACA] rounded-lg font-semibold text-xs text-[#991B1B] flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3 h-3 ${isRetrying ? 'animate-spin' : ''}`} />
+              <span>{isRetrying ? 'Retrying...' : 'Retry'}</span>
+            </button>
+          </div>
+        )}
+
         {/* Desktop TopBar */}
         <TopBar
           onOpenSearch={handleOpenSearch}
