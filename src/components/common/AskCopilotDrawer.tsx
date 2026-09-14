@@ -155,7 +155,7 @@ export const AskCopilotDrawer: React.FC<AskCopilotDrawerProps> = ({
                     </span>
                     {m.aiProvider && (
                       <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-[#EDE8E1] text-[#5C5148] font-mono">
-                        {m.aiProvider === 'gemini' ? 'Gemini 2.5 Flash' : 'Deterministic Rule Engine'}
+                        {m.aiProvider === 'gemini' ? 'Gemini 3.5 Flash' : 'Deterministic Rule Engine'}
                       </span>
                     )}
                   </div>

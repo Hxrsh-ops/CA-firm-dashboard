@@ -12,13 +12,15 @@ class MockAIProvider implements AIProvider {
   shouldFail = false;
   malformed = false;
   lastPrompt?: string;
+  lastSystemInstruction?: string;
 
   isConfigured(): boolean {
     return this.configured;
   }
 
-  async generateResponse(prompt: string): Promise<string | null> {
+  async generateResponse(prompt: string, systemInstruction?: string): Promise<string | null> {
     this.lastPrompt = prompt;
+    this.lastSystemInstruction = systemInstruction;
     if (this.shouldFail || !this.configured) {
       return null;
     }
@@ -175,11 +177,14 @@ describe('CA Copilot AI Operations Assistant Backend', () => {
   });
 
   // 13. AI Enhancement Mode
-  it('13. uses AI provider when configured and provides grounded synthesis', async () => {
+  it('13. uses AI provider when configured and provides grounded synthesis with quantitative preservation instruction', async () => {
     const res = await copilotServiceWithAi.processQuery('FIR-001', 'What needs my attention today?');
     expect(res.aiProvider).toBe('gemini');
     expect(mockAi.lastPrompt).toContain('AUTHORITATIVE PRACTICE FACTS:');
     expect(mockAi.lastPrompt).toContain('BASELINE VERIFIED ANSWER:');
+    expect(mockAi.lastSystemInstruction).toContain('You must preserve every authoritative quantitative fact exactly as provided.');
+    expect(mockAi.lastSystemInstruction).toContain('Never output an empty metric heading');
+    expect(mockAi.lastPrompt).toContain('You must preserve every authoritative quantitative fact');
   });
 
   // 14. HTTP Integration Test on POST /api/v1/copilot/chat

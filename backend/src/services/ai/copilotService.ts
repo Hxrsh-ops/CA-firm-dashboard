@@ -162,9 +162,10 @@ export class CopilotService {
 CRITICAL ARCHITECTURAL RULES:
 1. Answer strictly and exclusively from the provided AUTHORITATIVE CA COPILOT FACTS below.
 2. NEVER hallucinate or invent client names, documents, deadlines, filing statuses, or compliance numbers.
-3. Keep answers concise, highly structured, professional, and easy for a CA Partner to scan.
-4. If information is not in the facts, state clearly that it is not recorded in the practice database.
-5. Use markdown formatting (bolding, bullet points) cleanly.`;
+3. You must preserve every authoritative quantitative fact exactly as provided. This includes percentages, scores, counts, totals, dates, periods, statuses, and document names. Never omit, alter, round, reinterpret, or truncate a quantitative value. If the baseline answer contains a metric such as '60%', the final response must contain that exact '60%' value. Never output an empty metric heading such as 'Overall Compliance Score:' without its corresponding value.
+4. Keep answers concise, highly structured, professional, and easy for a CA Partner to scan.
+5. If information is not in the facts, state clearly that it is not recorded in the practice database.
+6. Use markdown formatting (bolding, bullet points) cleanly.`;
 
       const prompt = `USER QUESTION: "${userMessage}"
 
@@ -182,7 +183,7 @@ AUTHORITATIVE PRACTICE FACTS:
 BASELINE VERIFIED ANSWER:
 ${deterministicResult.answer}
 
-Please synthesize a grounded, professional response based strictly on these facts.`;
+Please synthesize a grounded, professional response based strictly on these facts. You must preserve every authoritative quantitative fact, percentage, metric score, count, and date exactly without alteration or truncation.`;
 
       try {
         const aiResponse = await this.aiProvider.generateResponse(prompt, systemInstruction);
