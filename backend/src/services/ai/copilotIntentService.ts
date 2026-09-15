@@ -5,6 +5,7 @@ export type CopilotIntentType =
   | 'GET_MISSING_DOCUMENTS'
   | 'GET_CLIENT_COMPLIANCE'
   | 'GET_CLIENT_SUMMARY'
+  | 'GET_NEW_CLIENTS'
   | 'GET_REVIEW_ITEMS'
   | 'GET_PENDING_REMINDERS'
   | 'GET_DOCUMENT_SUMMARY'
@@ -183,6 +184,22 @@ export class CopilotIntentService {
       } else {
         intent = 'GET_COMPLIANCE_SUMMARY';
       }
+    } else if (
+      lower.includes('new client') ||
+      lower.includes('new clients') ||
+      lower.includes('recent client') ||
+      lower.includes('recent clients') ||
+      lower.includes('recently added') ||
+      lower.includes('added recently') ||
+      lower.includes('added anyone') ||
+      lower.includes('new additions') ||
+      lower.includes('recently onboarded') ||
+      lower.includes('new onboarding') ||
+      lower.includes('who are the new clients') ||
+      lower.includes('any new clients') ||
+      lower.includes('have we added')
+    ) {
+      intent = 'GET_NEW_CLIENTS';
     } else if (isPureGreeting) {
       intent = 'GREETING';
     }

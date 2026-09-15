@@ -161,6 +161,7 @@ export class DashboardService {
 
       return {
         document_id: doc.document_id,
+        drive_file_id: doc.drive_file_id,
         filename: doc.filename,
         file_size: doc.file_size || '2.0 MB',
         client_id: doc.client_id,

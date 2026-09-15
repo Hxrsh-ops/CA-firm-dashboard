@@ -19,6 +19,7 @@ export interface CopilotFactualContext {
   targetAlerts?: Alert[];
   targetReminders?: Reminder[];
   targetDocuments?: Document[];
+  newClients?: Client[];
   draftedReminder?: {
     recipient_name: string;
     recipient_email: string;
@@ -220,6 +221,51 @@ export class DeterministicCopilotFormatter {
             `Why is ${targetClient.display_name} only ${Math.round(((clientMatrix.filter(m => m.status === 'Received' || m.status === 'Not Required').length) / (clientMatrix.length || 1)) * 100)}% compliant?`,
             `Draft reminder for ${targetClient.display_name}`,
             'What needs my attention today?'
+          ]
+        };
+      }
+
+      case 'GET_NEW_CLIENTS': {
+        const periodClients = (ctx.newClients && ctx.newClients.length > 0)
+          ? ctx.newClients
+          : ctx.clients.filter(c => c.created_at && c.created_at.startsWith(period));
+
+        if (periodClients.length > 0) {
+          const lines = [
+            `Found **${periodClients.length} new client(s)** onboarded under **${firmName}** (Period: **${period}**):`,
+            ''
+          ];
+          periodClients.forEach((c, idx) => {
+            const dateStr = c.created_at ? c.created_at.split('T')[0] : 'N/A';
+            lines.push(`${idx + 1}. **${c.legal_name}** (\`${c.client_id}\`)`);
+            lines.push(`   • Entity: ${c.entity_type} | Assigned CA: ${c.assigned_ca || 'CA Partner'}`);
+            lines.push(`   • Onboarded Date: ${dateStr}`);
+          });
+          return {
+            answer: lines.join('\n'),
+            source: `Based on authoritative client onboarding records for ${period}.`,
+            suggestedActions: [
+              `Summarize ${periodClients[0].display_name}`,
+              'What needs my attention today?',
+              'Which clients are missing documents?'
+            ]
+          };
+        }
+
+        // When 0 new clients onboarded in requested period:
+        const sortedClients = [...ctx.clients].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+        const latest = sortedClients[0];
+        const latestInfo = latest && latest.created_at 
+          ? ` (The most recently added client on record is **${latest.legal_name}**, onboarded on ${latest.created_at.split('T')[0]}).`
+          : '';
+
+        return {
+          answer: `No new clients were onboarded under **${firmName}** during period **${period}**${latestInfo}\n\nAll **${ctx.clients.length}** clients in the practice roster are existing active engagements.`,
+          source: `Based on authoritative client registry for ${firmName}.`,
+          suggestedActions: [
+            'What needs my attention today?',
+            'Which clients are missing documents?',
+            'Show active open compliance alerts'
           ]
         };
       }

@@ -14,11 +14,14 @@ export interface MakeReminderPayload {
   approved_at: string;
 }
 
-export class MakeClient {
-  private webhookUrl: string;
+export interface MakeReminderTriggerPayload {
+  reminder_id: string;
+  firm_id: string;
+}
 
-  constructor() {
-    this.webhookUrl = env.MAKE_REMINDER_WEBHOOK_URL;
+export class MakeClient {
+  get webhookUrl(): string {
+    return env.MAKE_REMINDER_WORKFLOW_WEBHOOK_URL || env.MAKE_REMINDER_WEBHOOK_URL || '';
   }
 
   isConfigured(): boolean {
@@ -27,41 +30,31 @@ export class MakeClient {
 
   async dispatchApprovedReminder(reminder: Reminder): Promise<{ success: boolean; error?: string }> {
     if (!this.isConfigured()) {
-      console.log(`[MakeClient] Mock dispatch (MAKE_REMINDER_WEBHOOK_URL not configured). Reminder ID: ${reminder.reminder_id} marked as sent.`);
-      return { success: true };
+      return { success: false, error: 'Unable to start reminder workflow. No email was sent.' };
     }
 
     try {
-      const payload: MakeReminderPayload = {
+      const payload: MakeReminderTriggerPayload = {
         reminder_id: reminder.reminder_id,
-        firm_id: reminder.firm_id,
-        client_id: reminder.client_id,
-        document_type: reminder.document_type,
-        period: reminder.period,
-        recipient_email: reminder.recipient_email,
-        subject: reminder.subject,
-        body: reminder.body,
-        approved_by: reminder.approved_by || 'CA Partner',
-        approved_at: new Date().toISOString()
+        firm_id: reminder.firm_id
       };
 
       const response = await fetch(this.webhookUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-webhook-secret': env.WEBHOOK_SECRET
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error(`Make webhook returned status ${response.status}: ${await response.text()}`);
+        throw new Error(`Make webhook returned status ${response.status}`);
       }
 
       return { success: true };
     } catch (err: any) {
-      console.error('[MakeClient] Failed to dispatch reminder webhook:', err);
-      return { success: false, error: err.message };
+      console.error('[MakeClient] Failed to dispatch reminder webhook:', err?.message || 'Network error');
+      return { success: false, error: 'Unable to start reminder workflow. No email was sent.' };
     }
   }
 }

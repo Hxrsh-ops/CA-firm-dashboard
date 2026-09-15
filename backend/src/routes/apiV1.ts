@@ -36,6 +36,7 @@ router.get('/reminders/:id', ReminderController.getById);
 router.post('/reminders', ReminderController.create);
 router.patch('/reminders/:id', ReminderController.update);
 router.post('/reminders/:id/approve', ReminderController.approve);
+router.post('/reminders/:id/dispatch', ReminderController.dispatch);
 router.post('/reminders/:id/send', ReminderController.send);
 router.post('/reminders/:id/cancel', ReminderController.cancel);
 

@@ -144,19 +144,22 @@ export class CopilotService {
           recipient_name: clientForDraft.display_name,
           recipient_email: clientForDraft.primary_email,
           subject: `Statutory Filing Reminder: Pending ${missingNames.join(', ')} for ${period}`,
-          body: `Dear ${clientForDraft.display_name} Team,\n\nThis is a friendly reminder from Vertex & Associates regarding your statutory filing compliance for period ${period}.\n\nAccording to our records, the following document(s) are currently outstanding:\n${missingNames.map(n => `• ${n}`).join('\n')}\n\nPlease submit these files at your earliest convenience to avoid statutory interest or late filing penalties.\n\nWarm regards,\n${clientForDraft.assigned_ca || 'CA Arun'}\nVertex & Associates, Chartered Accountants`,
+          body: `Dear ${clientForDraft.display_name} Team,\n\nThis is a friendly reminder from Vertex & Associates regarding your statutory filing compliance for period ${period}.\n\nAccording to our records, the following document(s) are currently outstanding:\n${missingNames.map(n => `• ${n}`).join('\n')}\n\nPlease submit these files at your earliest convenience to avoid statutory interest or late filing penalties.\n\nWarm regards,\n${clientForDraft.assigned_ca || 'CA Biju'}\nVertex & Associates, Chartered Accountants`,
           missing_items: missingNames
         };
       }
     }
 
-    // 5. Build Structured Factual Context
+    // 5. Identify New/Recent Clients and Build Structured Factual Context
+    const newClients = clients.filter(c => c.created_at && c.created_at.startsWith(period));
+
     const factualContext: CopilotFactualContext = {
       intent: parsed.intent,
       parsed,
       firm,
       period,
       clients,
+      newClients,
       documents,
       alerts,
       reminders,
@@ -184,6 +187,10 @@ CRITICAL ARCHITECTURAL RULES:
 5. If information is not in the facts, state clearly that it is not recorded in the practice database.
 6. Use markdown formatting (bolding, bullet points) cleanly.`;
 
+      const newClientsFact = newClients.length > 0
+        ? newClients.map(c => `${c.legal_name} (${c.client_id}, Onboarded: ${c.created_at ? c.created_at.split('T')[0] : 'N/A'})`).join('; ')
+        : `0 new clients onboarded in ${period} (Total active clients: ${clients.length})`;
+
       const prompt = `USER QUESTION: "${userMessage}"
 
 AUTHORITATIVE PRACTICE FACTS:
@@ -191,6 +198,7 @@ AUTHORITATIVE PRACTICE FACTS:
 - Evaluation Period: ${period}
 - Total Active Clients: ${clients.length}
 - Target Client: ${targetClient ? `${targetClient.legal_name} (${targetClient.client_id})` : 'None specified'}
+- New Clients in Period ${period}: ${newClientsFact}
 - Compliance Score (Period ${period}): ${complianceSummary.on_track_percentage}% (${complianceSummary.on_track} on track, ${complianceSummary.missing} missing, ${complianceSummary.needs_review} needs review)
 - Missing Documents Count: ${attentionMetrics.missing_documents}
 - Review Required Inbound Items: ${attentionMetrics.needs_review}

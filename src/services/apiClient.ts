@@ -137,6 +137,12 @@ class ApiClient {
     });
   }
 
+  async dispatchReminder(id: string) {
+    return this.request<{ message: string; reminder_id: string; status: string }>(`/reminders/${encodeURIComponent(id)}/dispatch`, {
+      method: 'POST'
+    });
+  }
+
   async sendReminder(id: string) {
     return this.request<any>(`/reminders/${encodeURIComponent(id)}/send`, {
       method: 'POST'

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Copy, Eye } from 'lucide-react';
+import { FileText, Copy, Eye, ExternalLink } from 'lucide-react';
 import { dataService, useDataSync } from '../../services/dataService';
 import { StatusBadge } from '../common/StatusBadge';
 import { DocumentReviewModal } from '../common/DocumentReviewModal';
@@ -123,16 +123,34 @@ export const DocumentsView: React.FC = () => {
                     </td>
                     <td className="py-3 px-3 text-right pr-4" onClick={(e) => e.stopPropagation()}>
                       <div className="inline-flex items-center gap-1.5">
+                        {doc.drive_file_id ? (
+                          <a
+                            href={`https://drive.google.com/file/d/${doc.drive_file_id}/view`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1 rounded text-[#8E6F58] hover:text-[#5F4635] hover:bg-[#EAE6DD] transition-colors"
+                            title="Open Source Document in Google Drive"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        ) : (
+                          <span
+                            className="p-1 text-[#D5CECE] cursor-not-allowed"
+                            title="Source document unavailable"
+                          >
+                            <FileText className="w-4 h-4 text-[#D5CECE]" />
+                          </span>
+                        )}
                         <button
                           onClick={() => handleOpenReview(doc)}
-                          className="p-1 rounded text-[#8C827A] hover:text-[#2B231F] hover:bg-[#EAE6DD]"
+                          className="p-1 rounded text-[#8C827A] hover:text-[#2B231F] hover:bg-[#EAE6DD] transition-colors"
                           title="Inspect & Review Document"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDownloadInfo(doc)}
-                          className="p-1 rounded text-[#8C827A] hover:text-[#2B231F] hover:bg-[#EAE6DD]"
+                          className="p-1 rounded text-[#8C827A] hover:text-[#2B231F] hover:bg-[#EAE6DD] transition-colors"
                           title="Copy Document Metadata / Reference"
                         >
                           <Copy className="w-4 h-4" />

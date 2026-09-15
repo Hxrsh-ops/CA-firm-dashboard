@@ -50,7 +50,7 @@ describe('CA Copilot AI Operations Assistant Backend', () => {
       entity_type: 'Private Limited' as const,
       primary_email: 'finance@quantumbridge.example',
       phone: '+91-9000000002',
-      assigned_ca: 'CA Arun',
+      assigned_ca: 'CA Biju',
       active: true,
       created_at: '2026-01-01T09:00:00Z'
     };
@@ -319,5 +319,53 @@ describe('CA Copilot AI Operations Assistant Backend', () => {
     expect(res.answer).toContain('How can I help you with practice operations today?');
     // Verify GeminiProvider was NOT called
     expect(mockAi.lastPrompt).toBeUndefined();
+  });
+
+  // 22. New client queries classified as GET_NEW_CLIENTS
+  it('22. classifies natural new-client queries as GET_NEW_CLIENTS', async () => {
+    const p1 = CopilotIntentService.parse('Any new clients?', []);
+    expect(p1.intent).toBe('GET_NEW_CLIENTS');
+
+    const p2 = CopilotIntentService.parse('Do we have any new clients this month?', []);
+    expect(p2.intent).toBe('GET_NEW_CLIENTS');
+
+    const p3 = CopilotIntentService.parse('Who are the new clients?', []);
+    expect(p3.intent).toBe('GET_NEW_CLIENTS');
+
+    const p4 = CopilotIntentService.parse('OH, ANY NEW CLIENTS?', []);
+    expect(p4.intent).toBe('GET_NEW_CLIENTS');
+
+    const p5 = CopilotIntentService.parse('Have we added anyone recently?', []);
+    expect(p5.intent).toBe('GET_NEW_CLIENTS');
+  });
+
+  // 23. GET_NEW_CLIENTS evaluates authoritative records without inventing data
+  it('23. GET_NEW_CLIENTS reports accurate authoritative client onboarding data', async () => {
+    const res = await copilotServiceDeterministic.processQuery('FIR-001', 'Any new clients?');
+    expect(res.intent).toBe('GET_NEW_CLIENTS');
+    expect(res.grounded).toBe(true);
+    expect(res.answer).toBeDefined();
+    expect(res.source).toContain('authoritative client');
+  });
+
+  // 24. GET_NEW_CLIENTS includes new client facts in Gemini prompt when configured
+  it('24. GET_NEW_CLIENTS passes grounded client facts to GeminiProvider', async () => {
+    mockAi.lastPrompt = undefined;
+    const res = await copilotServiceWithAi.processQuery('FIR-001', 'Any new clients this month?');
+
+    expect(res.intent).toBe('GET_NEW_CLIENTS');
+    expect(res.aiProvider).toBe('gemini');
+    expect(mockAi.lastPrompt).toContain('AUTHORITATIVE PRACTICE FACTS:');
+    expect(mockAi.lastPrompt).toContain('New Clients in Period');
+  });
+
+  // 25. GET_NEW_CLIENTS falls back to deterministic when Gemini fails
+  it('25. GET_NEW_CLIENTS falls back cleanly to deterministic response on Gemini failure', async () => {
+    mockAi.shouldFail = true;
+    const res = await copilotServiceWithAi.processQuery('FIR-001', 'Any new clients?');
+
+    expect(res.intent).toBe('GET_NEW_CLIENTS');
+    expect(res.aiProvider).toBe('deterministic');
+    expect(res.answer).toContain('Vertex & Associates');
   });
 });

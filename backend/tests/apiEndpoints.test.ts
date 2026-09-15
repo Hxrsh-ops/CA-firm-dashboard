@@ -124,6 +124,74 @@ describe('CA Copilot API v1 HTTP Endpoints & Webhooks', () => {
       expect(res.body.data.approved_by).toBe('CA Managing Partner');
     });
 
+    it('POST /api/v1/reminders/:id/dispatch fails if reminder is not Approved', async () => {
+      const res = await request(app)
+        .post('/api/v1/reminders/REM-002/dispatch')
+        .set('x-firm-id', FIRM_ID);
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('BUSINESS_RULE_VIOLATION');
+      expect(res.body.error.message).toContain('must be in "Approved" status');
+    });
+
+    it('POST /api/v1/reminders/:id/dispatch succeeds when Approved and triggers Make webhook', async () => {
+      // First approve REM-001
+      await request(app)
+        .post('/api/v1/reminders/REM-001/approve')
+        .set('x-firm-id', FIRM_ID)
+        .send({ approved_by: 'CA Partner' });
+
+      const res = await request(app)
+        .post('/api/v1/reminders/REM-001/dispatch')
+        .set('x-firm-id', FIRM_ID);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.message).toBe('Reminder workflow started.');
+      expect(res.body.data.reminder_id).toBe('REM-001');
+      expect(res.body.data.status).toBe('Approved'); // Status remains Approved until Make calls /send
+    });
+
+    it('POST /api/v1/reminders/:id/dispatch fails with 400 if reminder is already Sent (idempotency)', async () => {
+      // Approve and Send REM-001
+      await request(app)
+        .post('/api/v1/reminders/REM-001/approve')
+        .set('x-firm-id', FIRM_ID)
+        .send({ approved_by: 'CA Partner' });
+
+      await request(app)
+        .post('/api/v1/reminders/REM-001/send')
+        .set('x-firm-id', FIRM_ID);
+
+      // Attempt to dispatch already sent reminder
+      const res = await request(app)
+        .post('/api/v1/reminders/REM-001/dispatch')
+        .set('x-firm-id', FIRM_ID);
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('REMINDER_ALREADY_SENT');
+      expect(res.body.error.message).toBe('Reminder already sent.');
+    });
+
+    it('POST /api/v1/reminders/:id/dispatch returns 502 error if Make webhook fails', async () => {
+      vi.spyOn(makeClient, 'dispatchApprovedReminder').mockResolvedValueOnce({ 
+        success: false, 
+        error: 'Unable to start reminder workflow. No email was sent.' 
+      });
+
+      await request(app)
+        .post('/api/v1/reminders/REM-001/approve')
+        .set('x-firm-id', FIRM_ID)
+        .send({ approved_by: 'CA Partner' });
+
+      const res = await request(app)
+        .post('/api/v1/reminders/REM-001/dispatch')
+        .set('x-firm-id', FIRM_ID);
+
+      expect(res.status).toBe(502);
+      expect(res.body.error.code).toBe('WORKFLOW_DISPATCH_FAILED');
+      expect(res.body.error.message).toContain('Unable to start reminder workflow');
+    });
+
     it('POST /api/v1/reminders/:id/send fails if reminder is not Approved', async () => {
       const res = await request(app)
         .post('/api/v1/reminders/REM-002/send')

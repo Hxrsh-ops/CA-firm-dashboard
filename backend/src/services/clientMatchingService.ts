@@ -13,8 +13,7 @@ export class ClientMatchingService {
       return null;
     }
     const cleanEmail = senderEmail.trim().toLowerCase();
-    const client = await this.uow.clients.findByEmail(firm_id, cleanEmail);
-    return client;
+    return this.uow.clients.findByEmail(firm_id, cleanEmail);
   }
 
   async getClientById(firm_id: string, clientId: string): Promise<Client | null> {

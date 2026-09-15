@@ -16,7 +16,7 @@ export const DashboardHeader: React.FC = () => {
           {formattedDate}
         </div>
         <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-[#2B231F] leading-tight font-display">
-          Good morning, Arun.
+          Good morning, Biju.
         </h1>
         <p className="text-[14px] text-[#7A7169] mt-1 font-normal">
           Here&apos;s what needs your attention today.

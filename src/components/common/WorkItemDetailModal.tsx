@@ -192,7 +192,7 @@ export const WorkItemDetailModal: React.FC<WorkItemDetailModalProps> = ({
                 <div className="mt-2 bg-[#FEF9EE] border border-[#FDE68A] p-2.5 rounded-lg text-[#92400E] flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-[#D97706]" />
                   <span>
-                    <strong>Human Review Flag:</strong> Vendor GSTIN discrepancy detected against master database. Requires CA Arun manual sign-off.
+                    <strong>Human Review Flag:</strong> Vendor GSTIN discrepancy detected against master database. Requires CA Biju manual sign-off.
                   </span>
                 </div>
               )}

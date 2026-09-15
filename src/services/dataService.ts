@@ -528,6 +528,19 @@ class DataService {
   }
 
   // MUTATIONS (Optimistic update with automatic resync and rollback on error)
+  async createReminder(payload: {
+    client_id: string;
+    document_type: string;
+    period: string;
+    recipient_email: string;
+    subject: string;
+    body: string;
+  }): Promise<Reminder> {
+    const created = await apiClient.createReminder(payload);
+    await this.syncWithBackend();
+    return created;
+  }
+
   async approveReminder(reminderId: string, approvedBy: string = 'CA Partner'): Promise<boolean> {
     const reminder = this.reminders.find((r) => r.reminder_id === reminderId);
     if (reminder) {
@@ -563,6 +576,20 @@ class DataService {
       }
     }
     return false;
+  }
+
+  async dispatchReminder(reminderId: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const res = await apiClient.dispatchReminder(reminderId);
+      await this.syncWithBackend();
+      return { success: true, message: res.message || 'Reminder workflow started.' };
+    } catch (err: any) {
+      console.warn('[DataService] dispatchReminder API call failed:', err);
+      return { 
+        success: false, 
+        message: err.message || 'Unable to start reminder workflow. No email was sent.' 
+      };
+    }
   }
 
   async resolveAlert(alertId: string, user: string = 'CA Partner'): Promise<boolean> {

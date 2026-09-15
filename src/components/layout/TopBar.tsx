@@ -116,18 +116,18 @@ export const TopBar: React.FC<TopBarProps> = ({
             <div className="w-8 h-8 rounded-full overflow-hidden border border-[#D5C2B4] shadow-xs bg-[#EAE6DD] flex items-center justify-center text-xs font-semibold text-[#40382D]">
               <img
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                alt="CA Arun"
+                alt="CA Biju"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   // Fallback to text initials if image network is unavailable
                   (e.target as HTMLElement).style.display = 'none';
                 }}
               />
-              <span className="sr-only">CA Arun</span>
+              <span className="sr-only">CA Biju</span>
             </div>
             <div className="text-left hidden md:block">
               <div className="text-[12px] font-semibold text-[#2B231F] leading-tight">
-                CA Arun
+                CA Biju
               </div>
               <div className="text-[10.5px] text-[#8C827A] font-normal leading-tight">
                 Partner
@@ -140,8 +140,8 @@ export const TopBar: React.FC<TopBarProps> = ({
           {showProfileMenu && (
             <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-modal border border-[#EAE6DF] py-1.5 z-50 text-xs">
               <div className="px-3.5 py-2 border-b border-[#EAE6DF]">
-                <p className="font-semibold text-[#2B231F]">CA Arun Sharma, FCA</p>
-                <p className="text-[11px] text-[#8C827A]">arun@vertexca.in</p>
+                <p className="font-semibold text-[#2B231F]">CA Biju Sharma, FCA</p>
+                <p className="text-[11px] text-[#8C827A]">biju@vertexca.in</p>
                 <div className="mt-1 text-[10px] bg-[#FAF8F5] text-brand-700 px-1.5 py-0.5 rounded border border-[#EAE6DF] inline-block font-mono">
                   Membership #084920
                 </div>

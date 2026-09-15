@@ -12,7 +12,8 @@ import {
   Check,
   HelpCircle,
   Layers,
-  Mail
+  Mail,
+  ExternalLink
 } from 'lucide-react';
 import type { Document, DocumentType } from '../../types';
 import { dataService } from '../../services/dataService';
@@ -327,14 +328,26 @@ export const DocumentReviewModal: React.FC<DocumentReviewModalProps> = ({
             <div className="bg-white border border-[#EAE6DF] rounded-xl p-3.5 space-y-1">
               <span className="text-[10.5px] font-semibold text-[#8C8077] uppercase flex items-center gap-1">
                 <HardDrive className="w-3 h-3" />
-                Storage Ref
+                Storage & Source
               </span>
               <div className="font-mono text-[11px] text-[#5C5148] truncate" title={doc.drive_file_id || 'CA_Copilot_Vault'}>
                 {doc.drive_file_id ? `${doc.drive_file_id.slice(0, 16)}...` : 'CA_Copilot_Vault'}
               </div>
-              <span className="text-[11px] text-[#7A7067] block">
-                Status: <strong className="text-[#2B231F]">{doc.processing_status}</strong>
-              </span>
+              <div className="pt-0.5">
+                {doc.drive_file_id ? (
+                  <a
+                    href={`https://drive.google.com/file/d/${doc.drive_file_id}/view`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#8E6F58] hover:text-[#5F4635] hover:underline"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    <span>Open Source PDF</span>
+                  </a>
+                ) : (
+                  <span className="text-[10.5px] text-[#A89F95] italic">Source unavailable</span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -549,13 +562,36 @@ export const DocumentReviewModal: React.FC<DocumentReviewModalProps> = ({
 
         {/* Modal Footer Actions */}
         <div className="px-6 py-4 bg-[#FAF8F5] border-t border-[#EAE6DF] flex items-center justify-between gap-3 shrink-0">
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="px-4 py-2 rounded-xl border border-[#EAE6DF] bg-white text-xs font-semibold text-[#5C5148] hover:bg-[#F7F4EE] transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="px-4 py-2 rounded-xl border border-[#EAE6DF] bg-white text-xs font-semibold text-[#5C5148] hover:bg-[#F7F4EE] transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            {doc.drive_file_id ? (
+              <a
+                href={`https://drive.google.com/file/d/${doc.drive_file_id}/view`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-xl border border-[#DDD7CB] bg-white hover:bg-[#FAF8F5] text-xs font-semibold text-[#3D2D22] shadow-2xs flex items-center gap-1.5 transition-colors"
+                title="Open archived source document in Google Drive"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-[#8E6F58]" />
+                <span>Open Source Document</span>
+              </a>
+            ) : (
+              <button
+                disabled
+                className="px-3.5 py-2 rounded-xl border border-[#EAE6DF] bg-[#F5F2EC] text-xs font-medium text-[#A89F95] cursor-not-allowed flex items-center gap-1.5"
+                title="Source document unavailable (no drive_file_id linked)"
+              >
+                <FileText className="w-3.5 h-3.5 text-[#A89F95]" />
+                <span>Source Unavailable</span>
+              </button>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             {activeTab === 'overview' && (

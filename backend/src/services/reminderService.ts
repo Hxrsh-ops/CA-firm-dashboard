@@ -1,6 +1,7 @@
 import { IUnitOfWork } from '../repositories/interfaces.js';
 import { Reminder, DocumentType } from '../types/domain.js';
 import { AuditService } from './auditService.js';
+import { makeClient } from '../integrations/makeClient.js';
 
 export class ReminderService {
   private auditService: AuditService;
@@ -126,6 +127,59 @@ export class ReminderService {
     });
 
     return updated;
+  }
+
+  /**
+   * Dispatch an Approved Reminder to Make Workflow 2 for automated email delivery.
+   * Strictly requires reminder.status === 'Approved'.
+   * Does NOT mark reminder as Sent (Make calls /send upon successful email dispatch).
+   */
+  async dispatchReminder(
+    firm_id: string, 
+    reminderId: string, 
+    user = 'CA Partner',
+    overrideWebhookUrl?: string
+  ): Promise<{ message: string; reminder_id: string; status: string }> {
+    const reminder = await this.uow.reminders.findById(firm_id, reminderId);
+    if (!reminder) {
+      throw new Error(`Reminder with ID ${reminderId} not found.`);
+    }
+
+    // IDEMPOTENCY CHECK
+    if (reminder.status === 'Sent') {
+      throw new Error('Reminder already sent.');
+    }
+
+    if (reminder.status === 'Cancelled') {
+      throw new Error('Cannot dispatch a cancelled reminder.');
+    }
+
+    // HUMAN-IN-THE-LOOP APPROVAL GATE
+    if (reminder.status !== 'Approved') {
+      throw new Error(`Cannot dispatch reminder: Current status is "${reminder.status}". Reminder must be in "Approved" status before dispatch.`);
+    }
+
+    const result = await makeClient.dispatchApprovedReminder(reminder);
+    if (!result.success) {
+      throw new Error(result.error || 'Unable to start reminder workflow. No email was sent.');
+    }
+
+    await this.auditService.log({
+      firm_id,
+      user,
+      action: 'REMINDER_DISPATCH_INITIATED',
+      entity_type: 'Reminder',
+      entity_id: reminderId,
+      old_value: reminder,
+      new_value: reminder,
+      reason: `Workflow 2 dispatch triggered by CA partner ${user}`
+    });
+
+    return {
+      message: 'Reminder workflow started.',
+      reminder_id: reminder.reminder_id,
+      status: reminder.status
+    };
   }
 
   /**

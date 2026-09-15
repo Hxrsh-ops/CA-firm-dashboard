@@ -108,6 +108,59 @@ export class ReminderController {
     }
   }
 
+  static async dispatch(req: Request, res: Response, next: NextFunction) {
+    try {
+      const uow = getUnitOfWork();
+      const service = new ReminderService(uow);
+
+      const result = await service.dispatchReminder(
+        req.firm_id,
+        req.params.id,
+        req.user_identity || 'CA Partner'
+      );
+
+      res.json({ data: result });
+    } catch (err: any) {
+      if (err.message && err.message.includes('not found')) {
+        res.status(404).json({
+          error: {
+            code: 'REMINDER_NOT_FOUND',
+            message: err.message
+          }
+        });
+        return;
+      }
+      if (err.message && (err.message.includes('already sent') || err.message.includes('already been sent'))) {
+        res.status(400).json({
+          error: {
+            code: 'REMINDER_ALREADY_SENT',
+            message: 'Reminder already sent.'
+          }
+        });
+        return;
+      }
+      if (err.message && err.message.includes('Unable to start reminder workflow')) {
+        res.status(502).json({
+          error: {
+            code: 'WORKFLOW_DISPATCH_FAILED',
+            message: 'Unable to start reminder workflow. No email was sent.'
+          }
+        });
+        return;
+      }
+      if (err.message && err.message.includes('Cannot dispatch')) {
+        res.status(400).json({
+          error: {
+            code: 'BUSINESS_RULE_VIOLATION',
+            message: err.message
+          }
+        });
+        return;
+      }
+      next(err);
+    }
+  }
+
   static async send(req: Request, res: Response, next: NextFunction) {
     try {
       const uow = getUnitOfWork();

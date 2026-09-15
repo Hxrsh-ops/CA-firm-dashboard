@@ -55,6 +55,7 @@ export interface EmailAttachmentItem {
 
 export interface IntakeItem {
   document_id: string;
+  drive_file_id?: string;
   filename: string;
   file_size: string;
   client_id: string;
